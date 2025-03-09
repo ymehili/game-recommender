@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Game Recommender - Powered by Gemini AI
+
+A web application that recommends video games based on your preferences using the Gemini AI API.
+
+## Features
+
+- **User Preference Management**: Create and manage two lists - "Games I Liked" and "Games I Disliked"
+- **AI-Powered Recommendations**: Get personalized game recommendations based on your preferences
+- **Smart Analysis**: The app analyzes what you love about your favorite games and avoids recommending games with elements you dislike
+- **Explanations**: Each recommendation comes with an explanation of why it might appeal to you
+- **Match Scores**: See how closely each recommendation matches your preferences
+- **Responsive Design**: Works great on desktop and mobile devices
+- **Persistence**: Your game lists are saved between sessions
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js (v18 or higher)
+- A Gemini API key from Google AI Studio
+
+### Installation
+
+1. Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/game-recommender.git
+cd game-recommender
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables
+Create a `.env.local` file in the root directory with:
+```
+NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key_here
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Run the development server
+```bash
+npm run dev
+```
 
-## Learn More
+5. Open your browser and navigate to `http://localhost:3000`
 
-To learn more about Next.js, take a look at the following resources:
+### Building for Production
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run build
+npm start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## How It Works
 
-## Deploy on Vercel
+1. **Add games to your lists**: Type in game titles you've played and add them to your "Liked" or "Disliked" lists
+2. **Get recommendations**: Based on your preferences, the app will analyze patterns in your choices
+3. **Explore new games**: Review recommendations along with explanations of why they might suit your taste
+4. **Refine your lists**: As you play more games, continue updating your lists for better recommendations
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Technologies Used
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Next.js**: React framework for building the application
+- **TypeScript**: For type safety and developer experience
+- **Tailwind CSS**: For responsive styling
+- **Google Gemini AI**: For game analysis and recommendation generation
+- **React Icons**: For UI elements
+- **LocalStorage**: For persisting user preferences between sessions
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- [Google Gemini AI](https://ai.google.dev/gemini-api) for powering the recommendation engine
+- [Next.js](https://nextjs.org/) for the application framework
+- [Tailwind CSS](https://tailwindcss.com/) for styling
