@@ -14,7 +14,7 @@ export const generateGameRecommendations = async (
       throw new Error('API key is not configured');
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-04-17' });
 
     // Format the liked and disliked games into a prompt
     const likedGameTitles = request.likedGames.map(game => game.title).join(', ');
