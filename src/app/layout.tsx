@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8161806670678434" crossorigin="anonymous"></script>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8161806670678434" crossOrigin="anonymous"></script>
       </head>
       <body className={`${inter.className} bg-gray-100 dark:bg-gray-900 min-h-screen`}>
         <PreferencesProvider>
