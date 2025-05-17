@@ -6,7 +6,7 @@ import { PreferencesProvider } from "@/contexts/PreferencesContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Game Recommender | Powered by Gemini",
+  title: "AI Game Recommender",
   description: "Get personalized video game recommendations based on your preferences using Gemini AI.",
 };
 

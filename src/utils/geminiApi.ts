@@ -1,20 +1,20 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, GenerationConfig, Part, Content, Schema, SchemaType } from '@google/generative-ai';
+import { GoogleGenAI, Schema, Part, Content, Type} from "@google/genai";
 import { GameRecommendation, RecommendationRequest } from '@/types';
 
 // Initialize the Gemini API with an API key
 // In production, you would want to use environment variables for this
 const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
-const genAI = new GoogleGenerativeAI(API_KEY);
+const genAI = new GoogleGenAI({ apiKey: API_KEY });
 
 const gameRecommendationSchema: Schema = {
-  type: SchemaType.ARRAY,
+  type: Type.ARRAY,
   items: {
-    type: SchemaType.OBJECT,
+    type: Type.OBJECT,
     properties: {
-      id: { type: SchemaType.STRING },
-      title: { type: SchemaType.STRING },
-      explanation: { type: SchemaType.STRING },
-      matchScore: { type: SchemaType.NUMBER },
+      id: { type: Type.STRING },
+      title: { type: Type.STRING },
+      explanation: { type: Type.STRING },
+      matchScore: { type: Type.NUMBER },
     },
     required: ["id", "title", "explanation", "matchScore"],
   },
@@ -28,8 +28,6 @@ export const generateGameRecommendations = async (
       throw new Error('API key is not configured');
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-04-17' });
-
     const likedGameTitles = request.likedGames.map(game => game.title).join(', ');
     const dislikedGameTitles = request.dislikedGames.map(game => game.title).join(', ');
     const count = request.count || 5; // Default to 5 recommendations
@@ -38,7 +36,7 @@ export const generateGameRecommendations = async (
     Based on the following user preferences, please recommend ${count} video games.
     Games the user likes: ${likedGameTitles || 'None specified'}
     Games the user dislikes: ${dislikedGameTitles || 'None specified'}
-    
+
     Analyze what elements make the liked games enjoyable and what elements make the disliked games unenjoyable. 
     Recommend games that share positive elements with the liked games and avoid elements from the disliked games.
     For each recommendation, provide a brief explanation of why it matches the user's preferences.
@@ -48,26 +46,26 @@ export const generateGameRecommendations = async (
 
     console.log('Sending prompt to Gemini API:', prompt);
 
-    const generationConfig: GenerationConfig = {
-      responseMimeType: "application/json",
-      responseSchema: gameRecommendationSchema,
-    };
-
     const parts: Part[] = [{ text: prompt }];
-    const contents: Content[] = [{ role: "user", parts }];
+    const contents: Content[] = [{ role: "user", parts}];
 
-    const result = await model.generateContent({
+    const result = await genAI.models.generateContent({
+      model: 'gemini-2.5-flash-preview-04-17',
       contents: contents,
-      generationConfig: generationConfig,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: gameRecommendationSchema,
+      },
     });
 
-    const response = await result.response;
-    const text = response.text();
+    const text = result.text;
 
     console.log('Raw API response (should be JSON):', text);
 
     try {
-      // The response text should now be a valid JSON string according to the schema
+      if (text === undefined) {
+        throw new Error('Received undefined text from API response (structured output).');
+      }
       const recommendations = JSON.parse(text) as GameRecommendation[];
       return recommendations;
     } catch (parseError) {

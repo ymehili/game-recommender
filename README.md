@@ -1,4 +1,4 @@
-# Game Recommender - Powered by Gemini AI
+# AI Game Recommender - Powered by Gemini AI
 
 A web application that recommends video games based on your preferences using the Gemini AI API.
 

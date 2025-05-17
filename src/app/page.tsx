@@ -17,7 +17,7 @@ export default function Home() {
         <div className="flex items-center justify-center mb-4">
           <FaGamepad className="text-4xl text-blue-600 dark:text-blue-400 mr-3" />
           <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">
-            Game Recommender
+            AI Game Recommender
           </h1>
         </div>
         <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
