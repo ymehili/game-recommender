@@ -134,7 +134,6 @@ export default function AddGameForm() {
             required
             autoComplete="off"
           />
-          {isSearching && <p className="text-sm text-gray-500 dark:text-gray-400">Searching...</p>}
           {searchResults.length > 0 && (
             <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto dark:bg-gray-700 dark:border-gray-600">
               {searchResults.map((game) => (
