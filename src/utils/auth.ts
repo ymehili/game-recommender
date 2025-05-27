@@ -2,11 +2,16 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '@/types/auth';
 import { UserPreferences, RatedGame } from '@/types';
+// Import database functions
+import {
+  createUser as dbCreateUser,
+  findUserByEmail as dbFindUserByEmail,
+  findUserById as dbFindUserById,
+  getUserPreferences as dbGetUserPreferences,
+  updateUserPreferences as dbUpdateUserPreferences
+} from './database';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
-
-// Simple in-memory storage for users (in production, use a proper database)
-let users: (User & { password: string; preferences: UserPreferences })[] = [];
 
 export const hashPassword = async (password: string): Promise<string> => {
   return bcrypt.hash(password, 12);
@@ -50,86 +55,71 @@ export const validatePassword = (password: string): { isValid: boolean; message:
   return { isValid: true, message: 'Password is valid' };
 };
 
-// User storage functions (replace with database operations in production)
+// User storage functions using database
 export const createUser = async (userData: Omit<User, 'id' | 'createdAt'> & { password: string }): Promise<User> => {
-  const user: User = {
-    id: Math.random().toString(36).substr(2, 9),
-    email: userData.email,
-    username: userData.username,
-    createdAt: new Date().toISOString(),
+  // Hash password before storing
+  const hashedPassword = await hashPassword(userData.password);
+  const userDataWithHashedPassword = {
+    ...userData,
+    password: hashedPassword,
   };
   
-  // Store user with hashed password and empty preferences
-  const userWithPassword = {
-    ...user,
-    password: await hashPassword(userData.password),
-    preferences: { ratedGames: [] } as UserPreferences,
-  };
-  
-  users.push(userWithPassword);
-  return user;
+  return dbCreateUser(userDataWithHashedPassword);
 };
 
 export const findUserByEmail = async (email: string): Promise<(User & { password: string }) | null> => {
-  const user = users.find(user => user.email === email);
-  if (!user) return null;
-  
-  // Return user without preferences for authentication
-  const { preferences, ...userWithoutPreferences } = user;
-  return userWithoutPreferences as User & { password: string };
+  return dbFindUserByEmail(email);
 };
 
 export const findUserById = async (id: string): Promise<User | null> => {
-  const user = users.find(user => user.id === id);
-  if (!user) return null;
-  
-  // Return user without password and preferences
-  const { password, preferences, ...userWithoutSensitiveData } = user;
-  return userWithoutSensitiveData;
+  return dbFindUserById(id);
 };
 
 // User preferences functions
 export const getUserPreferences = async (userId: string): Promise<UserPreferences | null> => {
-  const user = users.find(user => user.id === userId);
-  return user ? user.preferences : null;
+  return dbGetUserPreferences(userId);
 };
 
 export const updateUserPreferences = async (userId: string, preferences: UserPreferences): Promise<UserPreferences | null> => {
-  const userIndex = users.findIndex(user => user.id === userId);
-  if (userIndex === -1) return null;
-  
-  users[userIndex].preferences = preferences;
-  return preferences;
+  return dbUpdateUserPreferences(userId, preferences);
 };
 
 export const rateGameForUser = async (userId: string, game: RatedGame): Promise<UserPreferences | null> => {
-  const user = users.find(user => user.id === userId);
-  if (!user) return null;
+  const currentPreferences = await getUserPreferences(userId);
+  if (!currentPreferences) return null;
   
   // Remove existing rating for this game if it exists
-  const filteredGames = user.preferences.ratedGames.filter(g => g.id !== game.id);
+  const filteredGames = currentPreferences.ratedGames.filter(g => g.id !== game.id);
   
   // Add the new rating (only if rating > 0)
   const updatedGames = game.rating > 0 
     ? [...filteredGames, { ...game, dateRated: new Date() }]
     : filteredGames;
   
-  user.preferences.ratedGames = updatedGames;
-  return user.preferences;
+  const updatedPreferences = {
+    ...currentPreferences,
+    ratedGames: updatedGames
+  };
+  
+  return updateUserPreferences(userId, updatedPreferences);
 };
 
 export const removeGameRatingForUser = async (userId: string, gameId: string): Promise<UserPreferences | null> => {
-  const user = users.find(user => user.id === userId);
-  if (!user) return null;
+  const currentPreferences = await getUserPreferences(userId);
+  if (!currentPreferences) return null;
   
-  user.preferences.ratedGames = user.preferences.ratedGames.filter(g => g.id !== gameId);
-  return user.preferences;
+  const updatedPreferences = {
+    ...currentPreferences,
+    ratedGames: currentPreferences.ratedGames.filter(g => g.id !== gameId)
+  };
+  
+  return updateUserPreferences(userId, updatedPreferences);
 };
 
 export const getGameRatingForUser = async (userId: string, gameId: string): Promise<number> => {
-  const user = users.find(user => user.id === userId);
-  if (!user) return 0;
+  const preferences = await getUserPreferences(userId);
+  if (!preferences) return 0;
   
-  const ratedGame = user.preferences.ratedGames.find(g => g.id === gameId);
+  const ratedGame = preferences.ratedGames.find(g => g.id === gameId);
   return ratedGame ? ratedGame.rating : 0;
 }; 
