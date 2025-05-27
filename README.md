@@ -77,3 +77,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Google Gemini AI](https://ai.google.dev/gemini-api) for powering the recommendation engine
 - [Next.js](https://nextjs.org/) for the application framework
 - [Tailwind CSS](https://tailwindcss.com/) for styling
+# RAWG API Configuration
+To use game covers, you need to get a free API key from https://rawg.io/apikey and add it to your .env.local file:
+```
+NEXT_PUBLIC_RAWG_API_KEY=your_rawg_api_key_here
+```

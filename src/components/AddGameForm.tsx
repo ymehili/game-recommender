@@ -2,19 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { Game } from '@/types';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
-
-// Define a type for the RAWG API response
-interface RawgGame {
-  id: number;
-  name: string;
-  slug: string;
-}
+import { searchGames, RawgGame } from '@/utils/rawgApi';
 
 export default function AddGameForm() {
   const [title, setTitle] = useState('');
   const [searchResults, setSearchResults] = useState<RawgGame[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedGame, setSelectedGame] = useState<RawgGame | null>(null);
   const { likeGame, dislikeGame } = usePreferences();
 
   // Debounce function
@@ -37,23 +32,8 @@ export default function AddGameForm() {
     }
     setIsSearching(true);
     try {
-      // IMPORTANT: Replace YOUR_API_KEY with your actual RAWG API key
-      // You can get a free API key at https://rawg.io/apikey
-      const apiKey = process.env.NEXT_PUBLIC_RAWG_API_KEY;
-      if (!apiKey) {
-        console.error("RAWG API key is not configured. Please set NEXT_PUBLIC_RAWG_API_KEY environment variable.");
-        setSearchResults([]);
-        setIsSearching(false);
-        return;
-      }
-      const response = await fetch(
-        `https://api.rawg.io/api/games?key=${apiKey}&search=${encodeURIComponent(searchTerm)}&page_size=5`
-      );
-      if (!response.ok) {
-        throw new Error('Failed to fetch games');
-      }
-      const data = await response.json();
-      setSearchResults(data.results || []);
+      const results = await searchGames(searchTerm);
+      setSearchResults(results);
     } catch (error) {
       console.error('Error fetching games:', error);
       setSearchResults([]);
@@ -70,6 +50,15 @@ export default function AddGameForm() {
   };
 
   const createGame = (): Game => {
+    // If we have a selected game with an image, use that
+    if (selectedGame && selectedGame.background_image) {
+      return {
+        id: generateGameId(),
+        title: selectedGame.name,
+        coverImage: selectedGame.background_image
+      };
+    }
+    // Otherwise just use the title
     return {
       id: generateGameId(),
       title: title.trim()
@@ -79,11 +68,14 @@ export default function AddGameForm() {
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
+    // Reset selected game when changing the search
+    setSelectedGame(null);
     debouncedFetchGames(newTitle);
   };
 
   const handleSelectGame = (game: RawgGame) => {
     setTitle(game.name);
+    setSelectedGame(game);
     setSearchResults([]);
   };
 
@@ -95,6 +87,7 @@ export default function AddGameForm() {
       const game = createGame();
       likeGame(game);
       setTitle('');
+      setSelectedGame(null);
     } finally {
       setIsSubmitting(false);
     }
@@ -108,6 +101,7 @@ export default function AddGameForm() {
       const game = createGame();
       dislikeGame(game);
       setTitle('');
+      setSelectedGame(null);
     } finally {
       setIsSubmitting(false);
     }
@@ -140,9 +134,18 @@ export default function AddGameForm() {
                 <li
                   key={game.id}
                   onClick={() => handleSelectGame(game)}
-                  className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                  className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer flex items-center"
                 >
-                  {game.name}
+                  {game.background_image && (
+                    <div className="w-8 h-8 mr-2 flex-shrink-0 rounded overflow-hidden">
+                      <img 
+                        src={game.background_image} 
+                        alt="" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <span>{game.name}</span>
                 </li>
               ))}
             </ul>
@@ -152,19 +155,19 @@ export default function AddGameForm() {
           <button
             type="button"
             onClick={handleAddToLiked}
+            className="flex items-center px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors disabled:opacity-50"
             disabled={isSubmitting || !title.trim()}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
           >
-            <FaThumbsUp />
+            <FaThumbsUp className="mr-2" />
             <span>Like</span>
           </button>
           <button
             type="button"
             onClick={handleAddToDisliked}
+            className="flex items-center px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
             disabled={isSubmitting || !title.trim()}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
           >
-            <FaThumbsDown />
+            <FaThumbsDown className="mr-2" />
             <span>Dislike</span>
           </button>
         </div>
