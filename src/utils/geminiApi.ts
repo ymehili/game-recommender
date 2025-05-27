@@ -28,19 +28,38 @@ export const generateGameRecommendations = async (
       throw new Error('API key is not configured');
     }
 
-    const likedGameTitles = request.likedGames.map(game => game.title).join(', ');
-    const dislikedGameTitles = request.dislikedGames.map(game => game.title).join(', ');
+    // Group games by rating and create descriptive text
+    const gamesByRating = request.ratedGames.reduce((acc, game) => {
+      if (!acc[game.rating]) acc[game.rating] = [];
+      acc[game.rating].push(game.title);
+      return acc;
+    }, {} as Record<number, string[]>);
+
+    const ratingDescriptions = [];
+    if (gamesByRating[5]) ratingDescriptions.push(`5-star games (absolutely loved): ${gamesByRating[5].join(', ')}`);
+    if (gamesByRating[4]) ratingDescriptions.push(`4-star games (really liked): ${gamesByRating[4].join(', ')}`);
+    if (gamesByRating[3]) ratingDescriptions.push(`3-star games (enjoyed): ${gamesByRating[3].join(', ')}`);
+    if (gamesByRating[2]) ratingDescriptions.push(`2-star games (didn't love): ${gamesByRating[2].join(', ')}`);
+    if (gamesByRating[1]) ratingDescriptions.push(`1-star games (disliked): ${gamesByRating[1].join(', ')}`);
+
     const count = request.count || 5; // Default to 5 recommendations
 
     const prompt = `
-    Based on the following user preferences, please recommend ${count} video games.
-    Games the user likes: ${likedGameTitles || 'None specified'}
-    Games the user dislikes: ${dislikedGameTitles || 'None specified'}
+    Based on the following user game ratings, please recommend ${count} video games that would best match their preferences.
+    
+    User's rated games:
+    ${ratingDescriptions.join('\n')}
 
-    Analyze what elements make the liked games enjoyable and what elements make the disliked games unenjoyable. 
-    Recommend games that share positive elements with the liked games and avoid elements from the disliked games.
-    For each recommendation, provide a brief explanation of why it matches the user's preferences.
-    Assign a match score (0-100) based on how well it aligns with the user's preferences.
+    Analyze the patterns in the user's ratings:
+    - Games rated 4-5 stars likely have elements the user enjoys
+    - Games rated 1-2 stars likely have elements the user dislikes  
+    - Games rated 3 stars are neutral/okay
+    
+    Recommend games that would likely receive 4-5 star ratings from this user based on their demonstrated preferences.
+    Consider genres, themes, gameplay mechanics, art styles, and other game elements.
+    
+    For each recommendation, provide a brief explanation of why it matches their rating patterns.
+    Assign a match score (0-100) based on how well it aligns with the user's demonstrated preferences.
     The ID should be a unique string for each game.
     `;
 

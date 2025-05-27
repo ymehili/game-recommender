@@ -32,11 +32,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate request
-    if (!requestData.likedGames && !requestData.dislikedGames) {
+    if (!requestData.ratedGames || requestData.ratedGames.length === 0) {
       return NextResponse.json(
         { 
           recommendations: [],
-          error: 'Please provide at least one liked or disliked game for recommendations.' 
+          error: 'Please provide at least one rated game for recommendations.' 
         } as RecommendationResponse,
         { status: 400 }
       );
@@ -48,24 +48,11 @@ export async function POST(request: NextRequest) {
     // Return response
     return NextResponse.json({ recommendations } as RecommendationResponse);
   } catch (error) {
-    console.error('Error in recommendation API:', error);
-    
-    // Handle specific errors
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { 
-          recommendations: [],
-          error: `Error generating recommendations: ${error.message}` 
-        } as RecommendationResponse,
-        { status: 500 }
-      );
-    }
-    
-    // Generic error
+    console.error('API error:', error);
     return NextResponse.json(
       { 
         recommendations: [],
-        error: 'An unexpected error occurred while generating recommendations.' 
+        error: error instanceof Error ? error.message : 'An unexpected error occurred' 
       } as RecommendationResponse,
       { status: 500 }
     );

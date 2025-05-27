@@ -5,18 +5,16 @@ import { Game, UserPreferences } from '@/types';
 import { 
   loadUserPreferences, 
   saveUserPreferences, 
-  addLikedGame, 
-  addDislikedGame, 
-  removeGame 
+  rateGame, 
+  removeGameRating,
+  getGameRating
 } from '@/utils/localStorage';
 
 interface PreferencesContextType {
   preferences: UserPreferences;
-  likeGame: (game: Game) => void;
-  dislikeGame: (game: Game) => void;
+  rateGame: (game: Game, rating: number) => void;
   removeGameFromLists: (gameId: string) => void;
-  isGameLiked: (gameId: string) => boolean;
-  isGameDisliked: (gameId: string) => boolean;
+  getGameRating: (gameId: string) => number;
   isLoading: boolean;
 }
 
@@ -24,8 +22,7 @@ const PreferencesContext = createContext<PreferencesContextType | undefined>(und
 
 export const PreferencesProvider = ({ children }: { children: ReactNode }) => {
   const [preferences, setPreferences] = useState<UserPreferences>({ 
-    likedGames: [], 
-    dislikedGames: [] 
+    ratedGames: [] 
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -39,38 +36,27 @@ export const PreferencesProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const likeGame = (game: Game) => {
-    const updatedPreferences = addLikedGame(game);
-    setPreferences(updatedPreferences);
-  };
-
-  const dislikeGame = (game: Game) => {
-    const updatedPreferences = addDislikedGame(game);
+  const handleRateGame = (game: Game, rating: number) => {
+    const updatedPreferences = rateGame(game, rating);
     setPreferences(updatedPreferences);
   };
 
   const removeGameFromLists = (gameId: string) => {
-    const updatedPreferences = removeGame(gameId);
+    const updatedPreferences = removeGameRating(gameId);
     setPreferences(updatedPreferences);
   };
 
-  const isGameLiked = (gameId: string): boolean => {
-    return preferences.likedGames.some(game => game.id === gameId);
-  };
-
-  const isGameDisliked = (gameId: string): boolean => {
-    return preferences.dislikedGames.some(game => game.id === gameId);
+  const handleGetGameRating = (gameId: string): number => {
+    return getGameRating(gameId);
   };
 
   return (
     <PreferencesContext.Provider
       value={{
         preferences,
-        likeGame,
-        dislikeGame,
+        rateGame: handleRateGame,
         removeGameFromLists,
-        isGameLiked,
-        isGameDisliked,
+        getGameRating: handleGetGameRating,
         isLoading
       }}
     >

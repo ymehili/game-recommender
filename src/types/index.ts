@@ -4,19 +4,22 @@ export interface Game {
   coverImage?: string;
 }
 
+export interface RatedGame extends Game {
+  rating: number; // 1-5 stars
+  dateRated?: Date;
+}
+
 export interface GameRecommendation extends Game {
   explanation: string;
   matchScore?: number; // Optional score from 0-100 indicating how well it matches preferences
 }
 
 export interface UserPreferences {
-  likedGames: Game[];
-  dislikedGames: Game[];
+  ratedGames: RatedGame[];
 }
 
 export interface RecommendationRequest {
-  likedGames: Game[];
-  dislikedGames: Game[];
+  ratedGames: RatedGame[];
   count?: number; // Number of recommendations to return
 }
 

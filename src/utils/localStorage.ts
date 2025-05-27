@@ -1,4 +1,4 @@
-import { Game, UserPreferences } from '@/types';
+import { Game, UserPreferences, RatedGame } from '@/types';
 
 const USER_PREFERENCES_KEY = 'gameRecommender.userPreferences';
 
@@ -7,29 +7,60 @@ const USER_PREFERENCES_KEY = 'gameRecommender.userPreferences';
  */
 export const loadUserPreferences = (): UserPreferences => {
   if (typeof window === 'undefined') {
-    return { likedGames: [], dislikedGames: [] };
+    return { ratedGames: [] };
   }
 
   try {
     const savedPreferences = localStorage.getItem(USER_PREFERENCES_KEY);
     if (savedPreferences) {
-      return JSON.parse(savedPreferences);
+      const parsed = JSON.parse(savedPreferences);
+      
+      // Migration: Convert old liked/disliked system to ratings
+      if (parsed.likedGames || parsed.dislikedGames) {
+        const ratedGames: RatedGame[] = [];
+        
+        // Convert liked games to 4-5 star ratings
+        if (parsed.likedGames) {
+          parsed.likedGames.forEach((game: Game) => {
+            ratedGames.push({
+              ...game,
+              rating: 4, // Default liked games to 4 stars
+              dateRated: new Date()
+            });
+          });
+        }
+        
+        // Convert disliked games to 1-2 star ratings
+        if (parsed.dislikedGames) {
+          parsed.dislikedGames.forEach((game: Game) => {
+            ratedGames.push({
+              ...game,
+              rating: 2, // Default disliked games to 2 stars
+              dateRated: new Date()
+            });
+          });
+        }
+        
+        const migratedPreferences = { ratedGames };
+        saveUserPreferences(migratedPreferences);
+        return migratedPreferences;
+      }
+      
+      return parsed;
     }
   } catch (error) {
     console.error('Error loading preferences from local storage:', error);
   }
 
-  return { likedGames: [], dislikedGames: [] };
+  return { ratedGames: [] };
 };
 
 /**
  * Saves user preferences to local storage
  */
 export const saveUserPreferences = (preferences: UserPreferences): void => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
+  if (typeof window === 'undefined') return;
+  
   try {
     localStorage.setItem(USER_PREFERENCES_KEY, JSON.stringify(preferences));
   } catch (error) {
@@ -38,80 +69,43 @@ export const saveUserPreferences = (preferences: UserPreferences): void => {
 };
 
 /**
- * Adds a game to the liked list and removes it from disliked if present
+ * Adds or updates a game rating
  */
-export const addLikedGame = (game: Game): UserPreferences => {
+export const rateGame = (game: Game, rating: number): UserPreferences => {
   const preferences = loadUserPreferences();
-
-  // Remove from disliked list if present
-  const filteredDisliked = preferences.dislikedGames.filter(g => g.id !== game.id);
   
-  // Add to liked list if not already there
-  if (!preferences.likedGames.some(g => g.id === game.id)) {
-    const updatedPreferences = {
-      likedGames: [...preferences.likedGames, game],
-      dislikedGames: filteredDisliked
-    };
-    saveUserPreferences(updatedPreferences);
-    return updatedPreferences;
-  }
+  // Remove existing rating for this game if it exists
+  const filteredGames = preferences.ratedGames.filter(g => g.id !== game.id);
   
-  // Just remove from disliked if already in liked
-  if (filteredDisliked.length !== preferences.dislikedGames.length) {
-    const updatedPreferences = {
-      likedGames: preferences.likedGames,
-      dislikedGames: filteredDisliked
-    };
-    saveUserPreferences(updatedPreferences);
-    return updatedPreferences;
-  }
+  // Add the new rating (only if rating > 0)
+  const updatedGames = rating > 0 
+    ? [...filteredGames, { ...game, rating, dateRated: new Date() }]
+    : filteredGames;
   
-  return preferences;
+  const updatedPreferences = { ratedGames: updatedGames };
+  saveUserPreferences(updatedPreferences);
+  return updatedPreferences;
 };
 
 /**
- * Adds a game to the disliked list and removes it from liked if present
+ * Removes a game rating
  */
-export const addDislikedGame = (game: Game): UserPreferences => {
-  const preferences = loadUserPreferences();
-
-  // Remove from liked list if present
-  const filteredLiked = preferences.likedGames.filter(g => g.id !== game.id);
-  
-  // Add to disliked list if not already there
-  if (!preferences.dislikedGames.some(g => g.id === game.id)) {
-    const updatedPreferences = {
-      likedGames: filteredLiked,
-      dislikedGames: [...preferences.dislikedGames, game]
-    };
-    saveUserPreferences(updatedPreferences);
-    return updatedPreferences;
-  }
-  
-  // Just remove from liked if already in disliked
-  if (filteredLiked.length !== preferences.likedGames.length) {
-    const updatedPreferences = {
-      likedGames: filteredLiked,
-      dislikedGames: preferences.dislikedGames
-    };
-    saveUserPreferences(updatedPreferences);
-    return updatedPreferences;
-  }
-  
-  return preferences;
-};
-
-/**
- * Removes a game from both liked and disliked lists
- */
-export const removeGame = (gameId: string): UserPreferences => {
+export const removeGameRating = (gameId: string): UserPreferences => {
   const preferences = loadUserPreferences();
   
   const updatedPreferences = {
-    likedGames: preferences.likedGames.filter(g => g.id !== gameId),
-    dislikedGames: preferences.dislikedGames.filter(g => g.id !== gameId)
+    ratedGames: preferences.ratedGames.filter(g => g.id !== gameId)
   };
   
   saveUserPreferences(updatedPreferences);
   return updatedPreferences;
+};
+
+/**
+ * Gets the rating for a specific game
+ */
+export const getGameRating = (gameId: string): number => {
+  const preferences = loadUserPreferences();
+  const ratedGame = preferences.ratedGames.find(g => g.id === gameId);
+  return ratedGame ? ratedGame.rating : 0;
 }; 

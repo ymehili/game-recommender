@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Game } from '@/types';
 import { usePreferences } from '@/contexts/PreferencesContext';
-import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
 import { searchGames, IGDBGame } from '@/utils/igdbApi';
+import StarRating from './StarRating';
 
 export default function AddGameForm() {
   const [title, setTitle] = useState('');
@@ -10,7 +10,8 @@ export default function AddGameForm() {
   const [isSearching, setIsSearching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedGame, setSelectedGame] = useState<IGDBGame | null>(null);
-  const { likeGame, dislikeGame } = usePreferences();
+  const [selectedRating, setSelectedRating] = useState(0);
+  const { rateGame } = usePreferences();
 
   // Debounce function
   const debounce = <F extends (...args: any[]) => any>(func: F, delay: number) => {
@@ -80,29 +81,16 @@ export default function AddGameForm() {
     setSearchResults([]);
   };
 
-  const handleAddToLiked = () => {
-    if (!title.trim()) return;
+  const handleAddGame = () => {
+    if (!title.trim() || selectedRating === 0) return;
     
     setIsSubmitting(true);
     try {
       const game = createGame();
-      likeGame(game);
+      rateGame(game, selectedRating);
       setTitle('');
       setSelectedGame(null);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleAddToDisliked = () => {
-    if (!title.trim()) return;
-    
-    setIsSubmitting(true);
-    try {
-      const game = createGame();
-      dislikeGame(game);
-      setTitle('');
-      setSelectedGame(null);
+      setSelectedRating(0);
     } finally {
       setIsSubmitting(false);
     }
@@ -110,66 +98,79 @@ export default function AddGameForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleAddToLiked();
+    handleAddGame();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full">
-      <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-3">
-        <div className="flex-grow relative">
-          <label htmlFor="game-title" className="sr-only">Game title</label>
+    <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Rate a Game</h2>
+      
+      <div className="space-y-4">
+        {/* Game search input */}
+        <div className="relative">
           <input
-            id="game-title"
             type="text"
+            placeholder="Search for a game..."
             value={title}
             onChange={handleTitleChange}
-            placeholder="Enter a game title..."
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            disabled={isSubmitting}
-            required
-            autoComplete="off"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
+              focus:ring-2 focus:ring-blue-500 focus:border-transparent 
+              bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+              placeholder-gray-500 dark:placeholder-gray-400"
           />
+          
+          {/* Search results dropdown */}
           {searchResults.length > 0 && (
-            <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto dark:bg-gray-700 dark:border-gray-600">
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
               {searchResults.map((game) => (
-                <li
+                <button
                   key={game.id}
+                  type="button"
                   onClick={() => handleSelectGame(game)}
-                  className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer flex items-center"
+                  className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 
+                    text-gray-900 dark:text-white first:rounded-t-lg last:rounded-b-lg"
                 >
-                  {game.cover?.url && (
-                    <div className="w-8 h-8 mr-2 flex-shrink-0 rounded overflow-hidden">
-                      <img 
-                        src={`https:${game.cover.url.replace('t_thumb', 't_cover_small')}`}
-                        alt="" 
-                        className="w-full h-full object-cover"
-                      />
+                  <div className="font-medium">{game.name}</div>
+                  {game.first_release_date && (
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {new Date(game.first_release_date * 1000).getFullYear()}
                     </div>
                   )}
-                  <span>{game.name}</span>
-                </li>
+                </button>
               ))}
-            </ul>
+            </div>
+          )}
+          
+          {/* Loading indicator */}
+          {isSearching && (
+            <div className="absolute right-3 top-2">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            </div>
           )}
         </div>
-        <div className="flex space-x-2">
+
+        {/* Rating selection */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Rate this game:
+          </label>
+          <StarRating 
+            rating={selectedRating}
+            onRatingChange={setSelectedRating}
+            showClearButton={true}
+            size="lg"
+          />
+        </div>
+
+        {/* Submit button */}
+        <div className="flex justify-end">
           <button
-            type="button"
-            onClick={handleAddToLiked}
-            className="flex items-center px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors disabled:opacity-50"
-            disabled={isSubmitting || !title.trim()}
+            type="submit"
+            onClick={handleAddGame}
+            className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isSubmitting || !title.trim() || selectedRating === 0}
           >
-            <FaThumbsUp className="mr-2" />
-            <span>Like</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleAddToDisliked}
-            className="flex items-center px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
-            disabled={isSubmitting || !title.trim()}
-          >
-            <FaThumbsDown className="mr-2" />
-            <span>Dislike</span>
+            {isSubmitting ? 'Adding...' : 'Add Game'}
           </button>
         </div>
       </div>

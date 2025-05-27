@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Game, GameRecommendation } from '@/types';
 import { usePreferences } from '@/contexts/PreferencesContext';
-import { FaThumbsUp, FaThumbsDown, FaTimes } from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 import { getGameCover } from '@/utils/igdbApi';
 import Image from 'next/image';
+import StarRating from './StarRating';
 
 interface GameCardProps {
   game: Game | GameRecommendation;
@@ -16,13 +17,23 @@ export default function GameCard({
   showActions = true,
   isRecommendation = false 
 }: GameCardProps) {
-  const { likeGame, dislikeGame, removeGameFromLists, isGameLiked, isGameDisliked } = usePreferences();
+  const { rateGame, removeGameFromLists, getGameRating } = usePreferences();
   const [isExpanded, setIsExpanded] = useState(false);
   const [coverImage, setCoverImage] = useState<string | null>(game.coverImage || null);
   const [isLoadingCover, setIsLoadingCover] = useState(false);
+  const [currentRating, setCurrentRating] = useState(0);
 
-  const handleLike = () => likeGame(game);
-  const handleDislike = () => dislikeGame(game);
+  // Load the current rating for this game
+  useEffect(() => {
+    const rating = getGameRating(game.id);
+    setCurrentRating(rating);
+  }, [game.id, getGameRating]);
+
+  const handleRatingChange = (rating: number) => {
+    rateGame(game, rating);
+    setCurrentRating(rating);
+  };
+
   const handleRemove = () => removeGameFromLists(game.id);
 
   // Check if this game has an explanation (is a recommendation)
@@ -42,7 +53,7 @@ export default function GameCard({
         const imageUrl = await getGameCover(game.title);
         setCoverImage(imageUrl);
         
-        // If this is a liked or disliked game, we could potentially update it with the cover
+        // If this is a rated game, we could potentially update it with the cover
         // but we'll leave that for another feature as it would require modifying the preferences context
       } catch (error) {
         console.error('Error fetching cover for game:', game.title, error);
@@ -81,27 +92,7 @@ export default function GameCard({
           <div className="flex justify-between items-start">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{game.title}</h3>
             {showActions && (
-              <div className="flex space-x-2">
-                <button 
-                  onClick={handleLike}
-                  className={`p-2 rounded-full ${isGameLiked(game.id) 
-                    ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400' 
-                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'} 
-                    hover:bg-green-200 dark:hover:bg-green-800 transition-colors`}
-                  aria-label="Like game"
-                >
-                  <FaThumbsUp className="text-sm" />
-                </button>
-                <button 
-                  onClick={handleDislike}
-                  className={`p-2 rounded-full ${isGameDisliked(game.id)
-                    ? 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400'
-                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'} 
-                    hover:bg-red-200 dark:hover:bg-red-800 transition-colors`}
-                  aria-label="Dislike game"
-                >
-                  <FaThumbsDown className="text-sm" />
-                </button>
+              <div className="flex items-center space-x-2">
                 <button 
                   onClick={handleRemove}
                   className="p-2 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 
@@ -114,6 +105,19 @@ export default function GameCard({
             )}
           </div>
           
+          {/* Star Rating */}
+          {showActions && (
+            <div className="mt-2">
+              <StarRating 
+                rating={currentRating}
+                onRatingChange={handleRatingChange}
+                showClearButton={true}
+                size="sm"
+              />
+            </div>
+          )}
+          
+          {/* Recommendation details */}
           {recommendation && recommendation.matchScore && (
             <div className="mt-2 flex items-center">
               <div className="bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded text-xs font-medium text-blue-800 dark:text-blue-200">

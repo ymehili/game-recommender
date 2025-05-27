@@ -11,10 +11,10 @@ export default function GameRecommendations() {
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchRecommendations = async () => {
-    // Don't fetch if there are no preferences yet
-    if (preferences.likedGames.length === 0 && preferences.dislikedGames.length === 0) {
+    // Don't fetch if there are no rated games yet
+    if (preferences.ratedGames.length === 0) {
       setRecommendations([]);
-      setError('Add some games to your lists to get recommendations');
+      setError('Add some rated games to get recommendations');
       return;
     }
 
@@ -28,8 +28,7 @@ export default function GameRecommendations() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          likedGames: preferences.likedGames,
-          dislikedGames: preferences.dislikedGames,
+          ratedGames: preferences.ratedGames,
           count: 5
         }),
       });
@@ -55,13 +54,13 @@ export default function GameRecommendations() {
     }
   };
 
-  // Fetch recommendations whenever preferences change
+  // Fetch recommendations whenever rated games change
   useEffect(() => {
     fetchRecommendations();
-  }, [preferences.likedGames.length, preferences.dislikedGames.length]);
+  }, [preferences.ratedGames.length]);
 
-  // Check if we have no games in either list
-  const hasNoGames = preferences.likedGames.length === 0 && preferences.dislikedGames.length === 0;
+  // Check if we have no rated games
+  const hasNoGames = preferences.ratedGames.length === 0;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
@@ -99,8 +98,8 @@ export default function GameRecommendations() {
       ) : (
         <div className="text-center p-8 text-gray-500 dark:text-gray-400">
           {hasNoGames 
-            ? 'Add games to your "Liked" and "Disliked" lists to get recommendations' 
-            : 'No recommendations found. Try refreshing or adding more games to your lists.'}
+            ? 'Add ratings to games to get personalized recommendations' 
+            : 'No recommendations found. Try refreshing or adding more game ratings.'}
         </div>
       )}
     </div>
