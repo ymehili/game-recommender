@@ -81,24 +81,28 @@ export default function AddGameForm() {
     setSearchResults([]);
   };
 
-  const handleAddGame = () => {
+  const handleAddGame = async () => {
     if (!title.trim() || selectedRating === 0) return;
     
     setIsSubmitting(true);
     try {
       const game = createGame();
-      rateGame(game, selectedRating);
+      await rateGame(game, selectedRating);
       setTitle('');
       setSelectedGame(null);
       setSelectedRating(0);
+      setSearchResults([]);
+    } catch (error) {
+      console.error('Error adding game:', error);
+      // You could add a toast notification here for better UX
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    handleAddGame();
+    await handleAddGame();
   };
 
   return (

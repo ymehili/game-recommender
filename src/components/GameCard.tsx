@@ -22,6 +22,8 @@ export default function GameCard({
   const [coverImage, setCoverImage] = useState<string | null>(game.coverImage || null);
   const [isLoadingCover, setIsLoadingCover] = useState(false);
   const [currentRating, setCurrentRating] = useState(0);
+  const [isRatingLoading, setIsRatingLoading] = useState(false);
+  const [isRemoveLoading, setIsRemoveLoading] = useState(false);
 
   // Load the current rating for this game
   useEffect(() => {
@@ -29,12 +31,31 @@ export default function GameCard({
     setCurrentRating(rating);
   }, [game.id, getGameRating]);
 
-  const handleRatingChange = (rating: number) => {
-    rateGame(game, rating);
-    setCurrentRating(rating);
+  const handleRatingChange = async (rating: number) => {
+    setIsRatingLoading(true);
+    try {
+      await rateGame(game, rating);
+      setCurrentRating(rating);
+    } catch (error) {
+      console.error('Error rating game:', error);
+      // Revert to previous rating on error
+      const previousRating = getGameRating(game.id);
+      setCurrentRating(previousRating);
+    } finally {
+      setIsRatingLoading(false);
+    }
   };
 
-  const handleRemove = () => removeGameFromLists(game.id);
+  const handleRemove = async () => {
+    setIsRemoveLoading(true);
+    try {
+      await removeGameFromLists(game.id);
+    } catch (error) {
+      console.error('Error removing game:', error);
+    } finally {
+      setIsRemoveLoading(false);
+    }
+  };
 
   // Check if this game has an explanation (is a recommendation)
   const recommendation = isRecommendation ? game as GameRecommendation : null;
@@ -95,11 +116,16 @@ export default function GameCard({
               <div className="flex items-center space-x-2">
                 <button 
                   onClick={handleRemove}
+                  disabled={isRemoveLoading}
                   className="p-2 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 
-                    hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Remove game"
                 >
-                  <FaTimes className="text-sm" />
+                  {isRemoveLoading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                  ) : (
+                    <FaTimes className="text-sm" />
+                  )}
                 </button>
               </div>
             )}
@@ -113,7 +139,13 @@ export default function GameCard({
                 onRatingChange={handleRatingChange}
                 showClearButton={true}
                 size="sm"
+                disabled={isRatingLoading}
               />
+              {isRatingLoading && (
+                <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Updating rating...
+                </div>
+              )}
             </div>
           )}
           

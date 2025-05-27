@@ -1,7 +1,9 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 import { Game, UserPreferences } from '@/types';
+import { useAuth } from './AuthContext';
 import { 
   loadUserPreferences, 
   saveUserPreferences, 
@@ -12,42 +14,161 @@ import {
 
 interface PreferencesContextType {
   preferences: UserPreferences;
-  rateGame: (game: Game, rating: number) => void;
-  removeGameFromLists: (gameId: string) => void;
+  rateGame: (game: Game, rating: number) => Promise<void>;
+  removeGameFromLists: (gameId: string) => Promise<void>;
   getGameRating: (gameId: string) => number;
   isLoading: boolean;
+  syncPreferences: () => Promise<void>;
 }
 
 const PreferencesContext = createContext<PreferencesContextType | undefined>(undefined);
 
 export const PreferencesProvider = ({ children }: { children: ReactNode }) => {
+  const { user, isLoading: authLoading } = useAuth();
   const [preferences, setPreferences] = useState<UserPreferences>({ 
     ratedGames: [] 
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load preferences from localStorage on component mount
-  useEffect(() => {
-    // Only load preferences on the client side
-    if (typeof window !== 'undefined') {
-      const loadedPreferences = loadUserPreferences();
-      setPreferences(loadedPreferences);
-      setIsLoading(false);
-    }
-  }, []);
-
-  const handleRateGame = (game: Game, rating: number) => {
-    const updatedPreferences = rateGame(game, rating);
-    setPreferences(updatedPreferences);
+  // Function to get auth headers
+  const getAuthHeaders = () => {
+    const token = Cookies.get('token');
+    return token ? {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    } : {};
   };
 
-  const removeGameFromLists = (gameId: string) => {
-    const updatedPreferences = removeGameRating(gameId);
-    setPreferences(updatedPreferences);
+  // Function to sync preferences from server
+  const syncPreferences = async () => {
+    if (!user) {
+      // If no user, load from localStorage (for backward compatibility)
+      const localPreferences = loadUserPreferences();
+      setPreferences(localPreferences);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/user/preferences', {
+        headers: getAuthHeaders(),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.preferences) {
+          setPreferences(data.preferences);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error syncing preferences from server:', error);
+    }
+
+    // Fallback to localStorage if server fails
+    const localPreferences = loadUserPreferences();
+    setPreferences(localPreferences);
+  };
+
+  // Function to save preferences to server
+  const savePreferencesToServer = async (newPreferences: UserPreferences) => {
+    if (!user) {
+      // If no user, save to localStorage
+      saveUserPreferences(newPreferences);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/user/preferences', {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(newPreferences),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save preferences to server');
+      }
+    } catch (error) {
+      console.error('Error saving preferences to server:', error);
+      // Fallback to localStorage
+      saveUserPreferences(newPreferences);
+    }
+  };
+
+  // Load preferences when user changes or component mounts
+  useEffect(() => {
+    if (!authLoading) {
+      setIsLoading(true);
+      syncPreferences().finally(() => setIsLoading(false));
+    }
+  }, [user, authLoading]);
+
+  const handleRateGame = async (game: Game, rating: number) => {
+    if (!user) {
+      // If no user, use localStorage
+      const updatedPreferences = rateGame(game, rating);
+      setPreferences(updatedPreferences);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/user/games/rate', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ game, rating }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.preferences) {
+          setPreferences(data.preferences);
+          return;
+        }
+      }
+      
+      throw new Error('Failed to rate game on server');
+    } catch (error) {
+      console.error('Error rating game:', error);
+      // Fallback to localStorage
+      const updatedPreferences = rateGame(game, rating);
+      setPreferences(updatedPreferences);
+    }
+  };
+
+  const removeGameFromLists = async (gameId: string) => {
+    if (!user) {
+      // If no user, use localStorage
+      const updatedPreferences = removeGameRating(gameId);
+      setPreferences(updatedPreferences);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/user/games/remove', {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ gameId }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.preferences) {
+          setPreferences(data.preferences);
+          return;
+        }
+      }
+      
+      throw new Error('Failed to remove game on server');
+    } catch (error) {
+      console.error('Error removing game:', error);
+      // Fallback to localStorage
+      const updatedPreferences = removeGameRating(gameId);
+      setPreferences(updatedPreferences);
+    }
   };
 
   const handleGetGameRating = (gameId: string): number => {
-    return getGameRating(gameId);
+    const ratedGame = preferences.ratedGames.find(g => g.id === gameId);
+    return ratedGame ? ratedGame.rating : 0;
   };
 
   return (
@@ -57,7 +178,8 @@ export const PreferencesProvider = ({ children }: { children: ReactNode }) => {
         rateGame: handleRateGame,
         removeGameFromLists,
         getGameRating: handleGetGameRating,
-        isLoading
+        isLoading: isLoading || authLoading,
+        syncPreferences,
       }}
     >
       {children}

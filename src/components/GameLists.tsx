@@ -1,9 +1,11 @@
 import { usePreferences } from '@/contexts/PreferencesContext';
+import { useAuth } from '@/contexts/AuthContext';
 import GameCard from './GameCard';
 import { FaStar } from 'react-icons/fa';
 import { RatedGame } from '@/types';
 
 export default function GameLists() {
+  const { user } = useAuth();
   const { preferences, isLoading } = usePreferences();
   const { ratedGames } = preferences;
 
@@ -49,6 +51,17 @@ export default function GameLists() {
 
   return (
     <div className="space-y-8">
+      {user && (
+        <div className="text-center mb-6">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            {user.username}'s Game Library
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            Your personal collection of rated games
+          </p>
+        </div>
+      )}
+      
       {isLoading ? (
         <div className="animate-pulse space-y-4">
           <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded"></div>

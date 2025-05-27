@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { GameRecommendation, RecommendationResponse } from '@/types';
 import { usePreferences } from '@/contexts/PreferencesContext';
+import { useAuth } from '@/contexts/AuthContext';
 import GameCard from './GameCard';
 import { FaSync } from 'react-icons/fa';
 
 export default function GameRecommendations() {
+  const { user } = useAuth();
   const { preferences } = usePreferences();
   const [recommendations, setRecommendations] = useState<GameRecommendation[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -56,8 +58,10 @@ export default function GameRecommendations() {
 
   // Fetch recommendations whenever rated games change
   useEffect(() => {
-    fetchRecommendations();
-  }, [preferences.ratedGames.length]);
+    if (user && preferences.ratedGames.length > 0) {
+      fetchRecommendations();
+    }
+  }, [user, preferences.ratedGames.length]);
 
   // Check if we have no rated games
   const hasNoGames = preferences.ratedGames.length === 0;
@@ -65,10 +69,17 @@ export default function GameRecommendations() {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Recommended Games</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Recommended Games</h2>
+          {user && (
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Personalized recommendations for {user.username}
+            </p>
+          )}
+        </div>
         <button
           onClick={fetchRecommendations}
-          disabled={isLoading || hasNoGames}
+          disabled={isLoading || hasNoGames || !user}
           className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
             disabled:opacity-50 disabled:cursor-not-allowed"
@@ -78,7 +89,11 @@ export default function GameRecommendations() {
         </button>
       </div>
 
-      {error ? (
+      {!user ? (
+        <div className="text-center p-8 text-gray-500 dark:text-gray-400">
+          Sign in to get personalized game recommendations based on your ratings.
+        </div>
+      ) : error ? (
         <div className="p-4 mb-4 text-sm text-amber-800 bg-amber-100 rounded-lg dark:bg-amber-900 dark:text-amber-100">
           {error}
         </div>

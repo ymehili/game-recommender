@@ -5,6 +5,7 @@ interface StarRatingProps {
   rating: number;
   onRatingChange?: (rating: number) => void;
   readonly?: boolean;
+  disabled?: boolean;
   size?: 'sm' | 'md' | 'lg';
   showClearButton?: boolean;
 }
@@ -13,6 +14,7 @@ export default function StarRating({
   rating, 
   onRatingChange, 
   readonly = false, 
+  disabled = false,
   size = 'md',
   showClearButton = false 
 }: StarRatingProps) {
@@ -22,14 +24,16 @@ export default function StarRating({
     lg: 'text-lg'
   };
 
+  const isInteractive = !readonly && !disabled;
+
   const handleStarClick = (starRating: number) => {
-    if (!readonly && onRatingChange) {
+    if (isInteractive && onRatingChange) {
       onRatingChange(starRating);
     }
   };
 
   const handleClear = () => {
-    if (!readonly && onRatingChange) {
+    if (isInteractive && onRatingChange) {
       onRatingChange(0);
     }
   };
@@ -41,10 +45,10 @@ export default function StarRating({
           key={star}
           type="button"
           onClick={() => handleStarClick(star)}
-          disabled={readonly}
+          disabled={readonly || disabled}
           className={`${sizes[size]} ${
-            readonly 
-              ? 'cursor-default' 
+            !isInteractive
+              ? 'cursor-default opacity-50' 
               : 'cursor-pointer hover:scale-110 transition-transform'
           } ${
             star <= rating 
@@ -56,7 +60,7 @@ export default function StarRating({
           <FaStar />
         </button>
       ))}
-      {showClearButton && rating > 0 && !readonly && (
+      {showClearButton && rating > 0 && isInteractive && (
         <button
           type="button"
           onClick={handleClear}
