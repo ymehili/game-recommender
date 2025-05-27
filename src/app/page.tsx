@@ -48,17 +48,6 @@ export default function Home() {
       </section>
 
       <footer className="text-center text-gray-500 dark:text-gray-400 mt-20 pb-8">
-        <p>
-          Powered by{' '}
-          <a 
-            href="https://ai.google.dev/gemini-api" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            Gemini API
-          </a>
-        </p>
       </footer>
     </main>
   );
