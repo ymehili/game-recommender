@@ -55,6 +55,9 @@ export const generateGameRecommendations = async (
       config: {
         responseMimeType: "application/json",
         responseSchema: gameRecommendationSchema,
+        thinkingConfig: {
+          thinkingBudget: 0,
+        },
       },
     });
 

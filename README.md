@@ -1,67 +1,115 @@
-# AI Game Recommender - Powered by Gemini AI
+# AI Game Recommender
 
-A web application that recommends video games based on your preferences using the Gemini AI API.
+An intelligent game recommendation system that learns from your preferences to suggest new games you might enjoy. Built with Next.js, TypeScript, and powered by Google Gemini AI.
 
 ## Features
 
-- **User Preference Management**: Create and manage two lists - "Games I Liked" and "Games I Disliked"
-- **AI-Powered Recommendations**: Get personalized game recommendations based on your preferences
-- **Smart Analysis**: The app analyzes what you love about your favorite games and avoids recommending games with elements you dislike
-- **Explanations**: Each recommendation comes with an explanation of why it might appeal to you
-- **Match Scores**: See how closely each recommendation matches your preferences
-- **Responsive Design**: Works great on desktop and mobile devices
-- **Persistence**: Your game lists are saved between sessions
+- **Personalized Recommendations**: Add games you like and dislike to get tailored suggestions
+- **AI-Powered Analysis**: Uses Google Gemini AI to understand your gaming preferences and generate relevant recommendations  
+- **Game Search Integration**: Search and add games with covers using the IGDB API
+- **Smart Persistence**: Your preferences are saved locally and persist between sessions
+- **Dark Mode Support**: Responsive design that works in both light and dark themes
+- **Match Scoring**: See how well each recommendation matches your stated preferences
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
-- A Gemini API key from Google AI Studio
+- Node.js 18.0 or later
+- npm or yarn package manager
+- Google Gemini API key
+- IGDB/Twitch API credentials
 
 ### Installation
 
-1. Clone the repository
-```bash
-git clone https://github.com/yourusername/game-recommender.git
-cd game-recommender
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/ai-game-recommender.git
+   cd ai-game-recommender
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   Create a `.env.local` file in the root directory:
+   ```env
+   NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key_here
+   NEXT_PUBLIC_TWITCH_CLIENT_ID=your_twitch_client_id_here
+   NEXT_PUBLIC_TWITCH_ACCESS_TOKEN=your_twitch_access_token_here
+   ```
+
+4. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## API Keys Setup
+
+### Google Gemini API
+
+1. Visit the [Google AI Studio](https://ai.google.dev/gemini-api)
+2. Create a new API key
+3. Add it to your `.env.local` file as `NEXT_PUBLIC_GEMINI_API_KEY`
+
+### IGDB API (via Twitch)
+
+To use game covers and search functionality, you need IGDB API access through Twitch:
+
+1. **Register a Twitch Application**:
+   - Go to [Twitch Developers Console](https://dev.twitch.tv/console)
+   - Create a new application
+   - Set OAuth Redirect URLs to `http://localhost:3000` (for development)
+   - Note down your Client ID
+
+2. **Get an Access Token**:
+   ```bash
+   curl -X POST 'https://id.twitch.tv/oauth2/token' \
+   -H 'Content-Type: application/x-www-form-urlencoded' \
+   -d 'client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET&grant_type=client_credentials'
+   ```
+
+3. **Add to your `.env.local` file**:
+   ```env
+   NEXT_PUBLIC_TWITCH_CLIENT_ID=your_twitch_client_id_here
+   NEXT_PUBLIC_TWITCH_ACCESS_TOKEN=your_twitch_access_token_here
+   ```
+
+## Usage
+
+1. **Add Games**: Use the search form to find and add games you like or dislike
+2. **Get Recommendations**: The AI will automatically generate recommendations based on your preferences
+3. **Refine Your Profile**: Continue adding games to improve recommendation accuracy
+4. **Explore Suggestions**: View detailed explanations for why each game was recommended
+
+## Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS
+- **AI Integration**: Google Gemini AI API
+- **Game Data**: IGDB API (Internet Game Database)
+- **Icons**: React Icons
+- **Deployment**: Vercel (recommended)
+
+## Project Structure
+
 ```
-
-2. Install dependencies
-```bash
-npm install
+src/
+├── app/                 # Next.js app router pages
+├── components/          # React components
+├── contexts/           # React contexts (preferences management)
+├── types/              # TypeScript type definitions
+└── utils/              # Utility functions (API calls, local storage)
 ```
-
-3. Set up environment variables
-Create a `.env.local` file in the root directory with:
-```
-NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key_here
-```
-
-4. Run the development server
-```bash
-npm run dev
-```
-
-5. Open your browser and navigate to `http://localhost:3000`
-
-### Building for Production
-
-```bash
-npm run build
-npm start
-```
-
-## How It Works
-
-1. **Add games to your lists**: Type in game titles you've played and add them to your "Liked" or "Disliked" lists
-2. **Get recommendations**: Based on your preferences, the app will analyze patterns in your choices
-3. **Explore new games**: Review recommendations along with explanations of why they might suit your taste
-4. **Refine your lists**: As you play more games, continue updating your lists for better recommendations
 
 ## Technologies Used
 
-- **Next.js**: React framework for building the application
+- **Next.js**: Full-stack React framework
 - **TypeScript**: For type safety and developer experience
 - **Tailwind CSS**: For responsive styling
 - **Google Gemini AI**: For game analysis and recommendation generation
@@ -77,8 +125,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Google Gemini AI](https://ai.google.dev/gemini-api) for powering the recommendation engine
 - [Next.js](https://nextjs.org/) for the application framework
 - [Tailwind CSS](https://tailwindcss.com/) for styling
-# RAWG API Configuration
-To use game covers, you need to get a free API key from https://rawg.io/apikey and add it to your .env.local file:
-```
-NEXT_PUBLIC_RAWG_API_KEY=your_rawg_api_key_here
-```
+- [IGDB](https://www.igdb.com/) for comprehensive game data

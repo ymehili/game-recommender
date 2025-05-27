@@ -12,6 +12,7 @@
     "@google/genai": "^0.14.1",
     "@google/generative-ai": "^0.24.0",
     "genai": "^0.0.18",
+    "igdb-api-node": "^6.0.5",
     "next": "15.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

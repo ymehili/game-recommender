@@ -2,14 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { Game } from '@/types';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
-import { searchGames, RawgGame } from '@/utils/rawgApi';
+import { searchGames, IGDBGame } from '@/utils/igdbApi';
 
 export default function AddGameForm() {
   const [title, setTitle] = useState('');
-  const [searchResults, setSearchResults] = useState<RawgGame[]>([]);
+  const [searchResults, setSearchResults] = useState<IGDBGame[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedGame, setSelectedGame] = useState<RawgGame | null>(null);
+  const [selectedGame, setSelectedGame] = useState<IGDBGame | null>(null);
   const { likeGame, dislikeGame } = usePreferences();
 
   // Debounce function
@@ -50,12 +50,13 @@ export default function AddGameForm() {
   };
 
   const createGame = (): Game => {
-    // If we have a selected game with an image, use that
-    if (selectedGame && selectedGame.background_image) {
+    // If we have a selected game with a cover, use that
+    if (selectedGame && selectedGame.cover?.url) {
+      const coverUrl = selectedGame.cover.url.replace('t_thumb', 't_cover_big');
       return {
         id: generateGameId(),
         title: selectedGame.name,
-        coverImage: selectedGame.background_image
+        coverImage: `https:${coverUrl}`
       };
     }
     // Otherwise just use the title
@@ -73,7 +74,7 @@ export default function AddGameForm() {
     debouncedFetchGames(newTitle);
   };
 
-  const handleSelectGame = (game: RawgGame) => {
+  const handleSelectGame = (game: IGDBGame) => {
     setTitle(game.name);
     setSelectedGame(game);
     setSearchResults([]);
@@ -136,10 +137,10 @@ export default function AddGameForm() {
                   onClick={() => handleSelectGame(game)}
                   className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer flex items-center"
                 >
-                  {game.background_image && (
+                  {game.cover?.url && (
                     <div className="w-8 h-8 mr-2 flex-shrink-0 rounded overflow-hidden">
                       <img 
-                        src={game.background_image} 
+                        src={`https:${game.cover.url.replace('t_thumb', 't_cover_small')}`}
                         alt="" 
                         className="w-full h-full object-cover"
                       />

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Game, GameRecommendation } from '@/types';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { FaThumbsUp, FaThumbsDown, FaTimes } from 'react-icons/fa';
-import { getGameCover } from '@/utils/rawgApi';
+import { getGameCover } from '@/utils/igdbApi';
 import Image from 'next/image';
 
 interface GameCardProps {

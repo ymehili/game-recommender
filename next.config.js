@@ -2,7 +2,7 @@
 const nextConfig = {
   /* config options here */
   images: {
-    domains: ['media.rawg.io'],
+    domains: ['images.igdb.com'],
   },
 };
 
