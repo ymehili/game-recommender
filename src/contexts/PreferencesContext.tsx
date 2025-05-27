@@ -31,12 +31,17 @@ export const PreferencesProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Function to get auth headers
-  const getAuthHeaders = () => {
+  const getAuthHeaders = (): HeadersInit => {
     const token = Cookies.get('token');
-    return token ? {
-      'Authorization': `Bearer ${token}`,
+    if (token) {
+      return {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      };
+    }
+    return {
       'Content-Type': 'application/json',
-    } : {};
+    };
   };
 
   // Function to sync preferences from server
