@@ -4,6 +4,7 @@ import { useState } from 'react';
 import AddGameForm from '@/components/AddGameForm';
 import GameLists from '@/components/GameLists';
 import GameRecommendations from '@/components/GameRecommendations';
+import AuthButton from '@/components/AuthButton';
 import { FaGamepad } from 'react-icons/fa';
 
 export default function Home() {
@@ -13,7 +14,11 @@ export default function Home() {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <header className="text-center mb-12">
+      <header className="text-center mb-12 relative">
+        <div className="absolute top-0 right-0">
+          <AuthButton />
+        </div>
+        
         <div className="flex items-center justify-center mb-4">
           <FaGamepad className="text-4xl text-blue-600 dark:text-blue-400 mr-3" />
           <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">

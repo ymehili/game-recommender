@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { PreferencesProvider } from "@/contexts/PreferencesContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,9 +22,11 @@ export default function RootLayout({
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8161806670678434" crossOrigin="anonymous"></script>
       </head>
       <body className={`${inter.className} bg-gray-100 dark:bg-gray-900 min-h-screen`}>
-        <PreferencesProvider>
-          {children}
-        </PreferencesProvider>
+        <AuthProvider>
+          <PreferencesProvider>
+            {children}
+          </PreferencesProvider>
+        </AuthProvider>
       </body>
     </html>
   );
