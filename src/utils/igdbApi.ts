@@ -17,6 +17,26 @@ export interface IGDBGame {
     name: string;
   }>;
   summary?: string;
+  screenshots?: Array<{
+    id: number;
+    url: string;
+  }>;
+  videos?: Array<{
+    id: number;
+    video_id: string;
+  }>;
+  rating?: number;
+  rating_count?: number;
+  storyline?: string;
+  involved_companies?: Array<{
+    id: number;
+    company: {
+      id: number;
+      name: string;
+    };
+    developer: boolean;
+    publisher: boolean;
+  }>;
 }
 
 export interface IGDBSearchResult {
@@ -92,7 +112,7 @@ export const getGameCover = async (gameTitle: string): Promise<string | null> =>
 };
 
 /**
- * Get detailed information about a specific game by ID
+ * Get detailed information about a specific game by ID (DEPRECATED - use getGameFromServer instead)
  */
 export const getGameById = async (gameId: number): Promise<IGDBGame | null> => {
   try {
@@ -117,6 +137,37 @@ export const getGameById = async (gameId: number): Promise<IGDBGame | null> => {
     return result.data;
   } catch (error) {
     console.error('Error fetching game by ID from IGDB:', error);
+    return null;
+  }
+};
+
+/**
+ * Get detailed game information from our server-side cache
+ * This uses server-side caching to avoid redundant IGDB API calls
+ */
+export const getGameFromServer = async (gameId: number): Promise<IGDBGame | null> => {
+  try {
+    const response = await fetch(`/api/games/${gameId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Server game fetch failed:', errorData.error);
+      return null;
+    }
+
+    const result = await response.json();
+    if (result.success) {
+      return result.data;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching game from server:', error);
     return null;
   }
 };

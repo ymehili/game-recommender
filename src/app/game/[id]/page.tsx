@@ -1,8 +1,18 @@
+/**
+ * Individual Game Page Component
+ * 
+ * This page displays detailed information about a specific game using server-side caching.
+ * - Game data is cached on the server (Vercel KV) for 24 hours
+ * - All users share the same cached game data from IGDB API
+ * - Only user-specific data (ratings, notes) are personalized
+ * - Reduces API calls and improves performance significantly
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { IGDBGame, getGameById } from '@/utils/igdbApi';
+import { IGDBGame, getGameFromServer } from '@/utils/igdbApi';
 import { getAuthHeaders } from '@/utils/cookies';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePreferences } from '@/contexts/PreferencesContext';
@@ -35,7 +45,7 @@ export default function GamePage() {
   const [isNoteSaving, setIsNoteSaving] = useState(false);
   const [noteId, setNoteId] = useState<string | null>(null);
 
-  // Load game data with caching
+  // Load game data from server-side cache
   useEffect(() => {
     const loadGameData = async () => {
       if (!gameId) return;
@@ -44,32 +54,9 @@ export default function GamePage() {
       setError(null);
 
       try {
-        // Check cache first
-        const cachedData = localStorage.getItem(`game_${gameId}`);
-        const cacheTimestamp = localStorage.getItem(`game_${gameId}_timestamp`);
-        
-        const now = Date.now();
-        const oneDayMs = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-        
-        if (cachedData && cacheTimestamp) {
-          const cacheAge = now - parseInt(cacheTimestamp);
-          if (cacheAge < oneDayMs) {
-            // Use cached data
-            const parsedData = JSON.parse(cachedData);
-            setGame(parsedData);
-            setIsLoading(false);
-            return;
-          }
-        }
-
-        // Fetch fresh data from API
-        const gameData = await getGameById(parseInt(gameId));
+        const gameData = await getGameFromServer(parseInt(gameId));
         if (gameData) {
           setGame(gameData);
-          
-          // Cache the data
-          localStorage.setItem(`game_${gameId}`, JSON.stringify(gameData));
-          localStorage.setItem(`game_${gameId}_timestamp`, now.toString());
         } else {
           setError('Game not found');
         }
