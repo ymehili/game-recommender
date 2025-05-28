@@ -2,15 +2,17 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import Cookies from 'js-cookie';
-import { Game, UserPreferences } from '@/types';
+import { Game, UserPreferences, RatedGame } from '@/types';
 import { useAuth } from './AuthContext';
 import { 
   loadUserPreferences, 
   saveUserPreferences, 
-  rateGame, 
+  rateGame as rateGameLocal, 
   removeGameRating,
   getGameRating
 } from '@/utils/localStorage';
+import { getGameIdByTitle } from '@/utils/igdbApi';
+import { getAuthHeaders } from '@/utils/cookies';
 
 interface PreferencesContextType {
   preferences: UserPreferences;
@@ -108,9 +110,30 @@ export const PreferencesProvider = ({ children }: { children: ReactNode }) => {
   }, [user, authLoading]);
 
   const handleRateGame = async (game: Game, rating: number) => {
+    // Check if this is a recommendation game (non-numeric ID) and try to get IGDB ID
+    let gameToRate = game;
+    if (isNaN(parseInt(game.id))) {
+      console.log('Detected recommendation game, looking up IGDB ID for:', game.title);
+      try {
+        const igdbId = await getGameIdByTitle(game.title);
+        if (igdbId) {
+          console.log('Found IGDB ID:', igdbId, 'for game:', game.title);
+          gameToRate = {
+            ...game,
+            id: igdbId.toString()
+          };
+        } else {
+          console.log('No IGDB ID found for game:', game.title, 'keeping original ID');
+        }
+      } catch (error) {
+        console.error('Error looking up IGDB ID for game:', game.title, error);
+        // Continue with original game if lookup fails
+      }
+    }
+
     if (!user) {
       // If no user, use localStorage
-      const updatedPreferences = rateGame(game, rating);
+      const updatedPreferences = rateGameLocal(gameToRate, rating);
       setPreferences(updatedPreferences);
       return;
     }
@@ -119,7 +142,7 @@ export const PreferencesProvider = ({ children }: { children: ReactNode }) => {
       const response = await fetch('/api/user/games/rate', {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ game, rating }),
+        body: JSON.stringify({ game: gameToRate, rating }),
       });
 
       if (response.ok) {
@@ -134,7 +157,7 @@ export const PreferencesProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error('Error rating game:', error);
       // Fallback to localStorage
-      const updatedPreferences = rateGame(game, rating);
+      const updatedPreferences = rateGameLocal(gameToRate, rating);
       setPreferences(updatedPreferences);
     }
   };

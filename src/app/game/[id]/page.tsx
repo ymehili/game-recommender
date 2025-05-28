@@ -54,7 +54,14 @@ export default function GamePage() {
       setError(null);
 
       try {
-        const gameData = await getGameFromServer(parseInt(gameId));
+        // Check if gameId is numeric (valid IGDB ID)
+        const numericGameId = parseInt(gameId);
+        if (isNaN(numericGameId)) {
+          setError('This game is not available for detailed viewing. It may be from a recommendation that could not be matched to our game database.');
+          return;
+        }
+
+        const gameData = await getGameFromServer(numericGameId);
         if (gameData) {
           setGame(gameData);
         } else {

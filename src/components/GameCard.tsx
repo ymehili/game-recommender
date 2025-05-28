@@ -98,13 +98,23 @@ export default function GameCard({
                                 target.tagName === 'BUTTON';
     
     if (!isInteractiveElement) {
-      router.push(`/game/${game.id}`);
+      // Only navigate if the game has a valid numeric IGDB ID
+      const numericId = parseInt(game.id);
+      if (!isNaN(numericId)) {
+        router.push(`/game/${game.id}`);
+      }
+      // If it's not a numeric ID, don't navigate (recommendation games without IGDB ID)
     }
   };
 
+  // Check if this game is clickable (has valid IGDB ID)
+  const isClickable = !isNaN(parseInt(game.id));
+
   return (
     <div 
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all duration-200 hover:shadow-xl cursor-pointer"
+      className={`bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all duration-200 ${
+        isClickable ? 'hover:shadow-xl cursor-pointer' : ''
+      }`}
       onClick={handleCardClick}
     >
       <div className="flex flex-row">

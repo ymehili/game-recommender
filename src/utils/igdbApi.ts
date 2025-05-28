@@ -178,4 +178,38 @@ export const getGameFromServer = async (gameId: number): Promise<IGDBGame | null
 export const formatReleaseDate = (timestamp?: number): string => {
   if (!timestamp) return 'Unknown';
   return new Date(timestamp * 1000).getFullYear().toString();
+};
+
+/**
+ * Search for a game's IGDB ID by title - useful for recommendation games
+ */
+export const getGameIdByTitle = async (gameTitle: string): Promise<number | null> => {
+  if (!gameTitle.trim()) {
+    return null;
+  }
+
+  try {
+    const response = await fetch('/api/igdb', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'getIdByTitle',
+        searchTerm: gameTitle.trim(),
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('IGDB ID search failed:', errorData.error);
+      return null;
+    }
+
+    const result = await response.json();
+    return result.data;
+  } catch (error) {
+    console.error('Error searching for game ID:', error);
+    return null;
+  }
 }; 

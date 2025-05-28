@@ -75,6 +75,24 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ data: null });
 
+      case 'getIdByTitle':
+        if (!searchTerm || !searchTerm.trim()) {
+          return NextResponse.json({ data: null });
+        }
+
+        const idSearchResponse = await client
+          .fields(['id', 'name'])
+          .search(searchTerm.trim())
+          .limit(1)
+          .request('/games');
+
+        const foundGame = idSearchResponse.data?.[0];
+        if (foundGame?.id) {
+          return NextResponse.json({ data: foundGame.id });
+        }
+
+        return NextResponse.json({ data: null });
+
       default:
         return NextResponse.json(
           { error: 'Invalid action' },
