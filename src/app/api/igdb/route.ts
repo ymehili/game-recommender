@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
         }
 
         const searchResponse = await client
-          .fields(['name', 'slug', 'cover.url', 'first_release_date', 'summary'])
+          .fields(['name', 'slug', 'cover.url', 'first_release_date', 'summary', 'platforms.name', 'genres.name'])
           .search(searchTerm.trim())
           .limit(5)
           .request('/games');

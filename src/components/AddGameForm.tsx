@@ -58,13 +58,19 @@ export default function AddGameForm() {
       return {
         id: generateGameId(),
         title: selectedGame.name,
-        coverImage: `https:${coverUrl}`
+        coverImage: `https:${coverUrl}`,
+        platforms: selectedGame.platforms,
+        genres: selectedGame.genres,
+        first_release_date: selectedGame.first_release_date
       };
     }
-    // Otherwise just use the title
+    // Otherwise just use the title, but still include metadata if available
     return {
       id: generateGameId(),
-      title: title.trim()
+      title: selectedGame?.name || title.trim(),
+      platforms: selectedGame?.platforms,
+      genres: selectedGame?.genres,
+      first_release_date: selectedGame?.first_release_date
     };
   };
 

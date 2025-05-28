@@ -2,6 +2,15 @@ export interface Game {
   id: string;
   title: string;
   coverImage?: string;
+  platforms?: Array<{
+    id: number;
+    name: string;
+  }>;
+  genres?: Array<{
+    id: number;
+    name: string;
+  }>;
+  first_release_date?: number; // IGDB timestamp
 }
 
 export interface RatedGame extends Game {

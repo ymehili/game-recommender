@@ -108,31 +108,31 @@ export default function GameSearchBar({
           value={query}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          className="w-full pl-12 pr-12 py-4 border border-letterboxd rounded-lg 
-            focus:ring-2 focus:ring-letterboxd-green focus:border-letterboxd-green 
-            bg-letterboxd-card text-white placeholder-text-muted text-lg
+          className="w-full pl-10 pr-10 py-2 border border-letterboxd rounded 
+            focus:ring-1 focus:ring-letterboxd-green focus:border-letterboxd-green 
+            bg-letterboxd-tertiary text-white placeholder-text-muted text-sm
             transition-all duration-200"
         />
         
         {/* Search icon */}
-        <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-          <FaSearch className="text-muted" />
+        <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+          <FaSearch className="text-muted text-sm" />
         </div>
         
         {/* Clear button */}
         {query && (
           <button
             onClick={handleClear}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-letterboxd-tertiary transition-colors"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-letterboxd-secondary transition-colors"
           >
-            <FaTimes className="text-muted text-sm" />
+            <FaTimes className="text-muted text-xs" />
           </button>
         )}
         
         {/* Loading indicator */}
         {isSearching && (
-          <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-            <div className="animate-spin rounded-full h-5 w-5 border-2 border-letterboxd-green border-t-transparent"></div>
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-letterboxd-green border-t-transparent"></div>
           </div>
         )}
       </div>

@@ -11,7 +11,7 @@ import {
   removeGameRating,
   getGameRating
 } from '@/utils/localStorage';
-import { getGameIdByTitle } from '@/utils/igdbApi';
+import { getGameIdByTitle, getGameFromServer } from '@/utils/igdbApi';
 import { getAuthHeaders } from '@/utils/cookies';
 
 interface PreferencesContextType {
@@ -110,23 +110,38 @@ export const PreferencesProvider = ({ children }: { children: ReactNode }) => {
   }, [user, authLoading]);
 
   const handleRateGame = async (game: Game, rating: number) => {
-    // Check if this is a recommendation game (non-numeric ID) and try to get IGDB ID
+    // Check if this is a recommendation game (non-numeric ID) and try to get full IGDB data
     let gameToRate = game;
     if (isNaN(parseInt(game.id))) {
-      console.log('Detected recommendation game, looking up IGDB ID for:', game.title);
+      console.log('Detected recommendation game, looking up IGDB data for:', game.title);
       try {
         const igdbId = await getGameIdByTitle(game.title);
         if (igdbId) {
           console.log('Found IGDB ID:', igdbId, 'for game:', game.title);
-          gameToRate = {
-            ...game,
-            id: igdbId.toString()
-          };
+          
+          // Get full game data from IGDB
+          const fullGameData = await getGameFromServer(igdbId);
+          if (fullGameData) {
+            gameToRate = {
+              ...game,
+              id: igdbId.toString(),
+              platforms: fullGameData.platforms,
+              genres: fullGameData.genres,
+              first_release_date: fullGameData.first_release_date,
+              coverImage: fullGameData.cover?.url ? `https:${fullGameData.cover.url.replace('t_thumb', 't_cover_big')}` : game.coverImage
+            };
+            console.log('Enriched game data with IGDB metadata');
+          } else {
+            gameToRate = {
+              ...game,
+              id: igdbId.toString()
+            };
+          }
         } else {
           console.log('No IGDB ID found for game:', game.title, 'keeping original ID');
         }
       } catch (error) {
-        console.error('Error looking up IGDB ID for game:', game.title, error);
+        console.error('Error looking up IGDB data for game:', game.title, error);
         // Continue with original game if lookup fails
       }
     }
