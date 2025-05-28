@@ -28,19 +28,11 @@ export default function Home() {
                 <FaHome className="text-sm" />
                 <span>HOME</span>
               </Link>
-              <a href="#" className="text-secondary hover:text-white transition-colors flex items-center space-x-1 font-medium">
-                <FaFilm className="text-sm" />
-                <span>GAMES</span>
-              </a>
-              <a href="#" className="text-secondary hover:text-white transition-colors font-medium">
-                LISTS
-              </a>
-              <a href="#" className="text-secondary hover:text-white transition-colors font-medium">
-                MEMBERS
-              </a>
-              <a href="#" className="text-secondary hover:text-white transition-colors font-medium">
-                JOURNAL
-              </a>
+              {user && (
+                <Link href="/profile" className="text-secondary hover:text-white transition-colors font-medium">
+                  PROFILE
+                </Link>
+              )}
             </nav>
 
             {/* Right side */}

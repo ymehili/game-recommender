@@ -32,16 +32,6 @@ export default function Profile() {
                 <Link href="/" className="text-secondary hover:text-white transition-colors font-medium">
                   HOME
                 </Link>
-                <a href="#" className="text-secondary hover:text-white transition-colors flex items-center space-x-1 font-medium">
-                  <FaFilm className="text-sm" />
-                  <span>GAMES</span>
-                </a>
-                <a href="#" className="text-secondary hover:text-white transition-colors font-medium">
-                  LISTS
-                </a>
-                <a href="#" className="text-secondary hover:text-white transition-colors font-medium">
-                  MEMBERS
-                </a>
                 <Link href="/profile" className="text-white hover:letterboxd-green transition-colors font-medium border-b-2 border-letterboxd-green pb-1">
                   PROFILE
                 </Link>
@@ -108,16 +98,6 @@ export default function Profile() {
               <Link href="/" className="text-secondary hover:text-white transition-colors font-medium">
                 HOME
               </Link>
-              <a href="#" className="text-secondary hover:text-white transition-colors flex items-center space-x-1 font-medium">
-                <FaFilm className="text-sm" />
-                <span>GAMES</span>
-              </a>
-              <a href="#" className="text-secondary hover:text-white transition-colors font-medium">
-                LISTS
-              </a>
-              <a href="#" className="text-secondary hover:text-white transition-colors font-medium">
-                MEMBERS
-              </a>
               <Link href="/profile" className="text-white hover:letterboxd-green transition-colors font-medium border-b-2 border-letterboxd-green pb-1">
                 PROFILE
               </Link>
