@@ -1,7 +1,7 @@
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { useAuth } from '@/contexts/AuthContext';
 import GameCard from './GameCard';
-import { FaStar, FaStarHalfAlt } from 'react-icons/fa';
+import { FaStar, FaStarHalfAlt, FaHeart } from 'react-icons/fa';
 import { RatedGame } from '@/types';
 
 export default function GameLists() {
@@ -44,11 +44,11 @@ export default function GameLists() {
   };
 
   const getRatingColor = (rating: number) => {
-    if (rating >= 4.5) return 'text-yellow-500';
-    if (rating >= 3.5) return 'text-green-500';
-    if (rating >= 2.5) return 'text-blue-500';
-    if (rating >= 1.5) return 'text-orange-500';
-    return 'text-red-500';
+    if (rating >= 4.5) return 'letterboxd-green';
+    if (rating >= 3.5) return 'letterboxd-orange';
+    if (rating >= 2.5) return 'text-blue-400';
+    if (rating >= 1.5) return 'text-yellow-400';
+    return 'text-red-400';
   };
 
   const renderStarsForRating = (rating: number) => {
@@ -74,7 +74,7 @@ export default function GameLists() {
     const emptyStars = 5 - Math.ceil(rating);
     for (let i = 0; i < emptyStars; i++) {
       stars.push(
-        <FaStar key={`empty-${i}`} className="text-gray-300 dark:text-gray-600" />
+        <FaStar key={`empty-${i}`} className="text-muted" />
       );
     }
 
@@ -85,22 +85,33 @@ export default function GameLists() {
   const possibleRatings = [5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {user && (
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            {user.username}'s Game Library
+        <div className="text-center mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
+            {user.username}'s Game Diary
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-xl text-secondary">
             Your personal collection of rated games
           </p>
+          <div className="mt-4 text-muted">
+            {ratedGames.length} game{ratedGames.length !== 1 ? 's' : ''} rated
+          </div>
         </div>
       )}
       
       {isLoading ? (
-        <div className="animate-pulse space-y-4">
-          <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
-          <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
+        <div className="space-y-8">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="animate-pulse">
+              <div className="h-8 bg-letterboxd-tertiary rounded mb-4"></div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                {[1, 2, 3, 4, 5, 6].map((j) => (
+                  <div key={j} className="w-40 h-56 bg-letterboxd-tertiary rounded-lg"></div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       ) : ratedGames.length > 0 ? (
         // Display games grouped by rating (5 stars to 0.5 stars)
@@ -109,33 +120,44 @@ export default function GameLists() {
           if (!games || games.length === 0) return null;
 
           return (
-            <div key={rating} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-              <div className="flex items-center mb-4">
-                <div className="flex items-center space-x-1 mr-3">
+            <section key={rating} className="space-y-6">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-1">
                   {renderStarsForRating(rating)}
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {getRatingLabel(rating)}
-                </h2>
-                <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
-                  ({games.length} game{games.length !== 1 ? 's' : ''})
-                </span>
+                <div>
+                  <h2 className="text-2xl font-bold text-white">
+                    {getRatingLabel(rating)}
+                  </h2>
+                  <span className="text-muted">
+                    {games.length} game{games.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
               </div>
               
-              <div className="space-y-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {games.map((game) => (
-                  <GameCard key={game.id} game={game} />
+                  <GameCard 
+                    key={game.id} 
+                    game={game} 
+                    size="medium"
+                  />
                 ))}
               </div>
-            </div>
+            </section>
           );
         })
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <div className="text-center p-8 text-gray-500 dark:text-gray-400 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
-            <FaStar className="mx-auto text-4xl mb-4 text-gray-300 dark:text-gray-600" />
-            <h3 className="text-lg font-medium mb-2">No rated games yet</h3>
-            <p>Start by rating some games you've played!</p>
+        <div className="bg-letterboxd-card border border-letterboxd rounded-lg p-12">
+          <div className="text-center">
+            <FaHeart className="mx-auto text-6xl text-muted mb-6" />
+            <h3 className="text-2xl font-bold text-white mb-4">Start Your Game Diary</h3>
+            <p className="text-xl text-secondary mb-6">
+              Rate games you've played to keep track of your gaming journey
+            </p>
+            <p className="text-muted">
+              Use the search bar above to find games and start rating them
+            </p>
           </div>
         </div>
       )}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Game, GameRecommendation } from '@/types';
 import { usePreferences } from '@/contexts/PreferencesContext';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaEye, FaHeart } from 'react-icons/fa';
 import { getGameCover } from '@/utils/igdbApi';
 import Image from 'next/image';
 import StarRating from './StarRating';
@@ -11,12 +11,14 @@ interface GameCardProps {
   game: Game | GameRecommendation;
   showActions?: boolean;
   isRecommendation?: boolean;
+  size?: 'small' | 'medium' | 'large';
 }
 
 export default function GameCard({ 
   game, 
   showActions = true,
-  isRecommendation = false 
+  isRecommendation = false,
+  size = 'medium'
 }: GameCardProps) {
   const router = useRouter();
   const { rateGame, removeGameFromLists, getGameRating } = usePreferences();
@@ -26,6 +28,16 @@ export default function GameCard({
   const [currentRating, setCurrentRating] = useState(0);
   const [isRatingLoading, setIsRatingLoading] = useState(false);
   const [isRemoveLoading, setIsRemoveLoading] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Size configurations
+  const sizeConfig = {
+    small: { width: 'w-32', height: 'h-44', textSize: 'text-sm' },
+    medium: { width: 'w-40', height: 'h-56', textSize: 'text-base' },
+    large: { width: 'w-48', height: 'h-64', textSize: 'text-lg' }
+  };
+
+  const config = sizeConfig[size];
 
   // Load the current rating for this game
   useEffect(() => {
@@ -40,7 +52,6 @@ export default function GameCard({
       setCurrentRating(rating);
     } catch (error) {
       console.error('Error rating game:', error);
-      // Revert to previous rating on error
       const previousRating = getGameRating(game.id);
       setCurrentRating(previousRating);
     } finally {
@@ -59,13 +70,11 @@ export default function GameCard({
     }
   };
 
-  // Check if this game has an explanation (is a recommendation)
   const recommendation = isRecommendation ? game as GameRecommendation : null;
 
   // Fetch cover image if not already available
   useEffect(() => {
     const fetchCover = async () => {
-      // Skip fetching if we already have a cover image
       if (game.coverImage) {
         setCoverImage(game.coverImage);
         return;
@@ -75,9 +84,6 @@ export default function GameCard({
       try {
         const imageUrl = await getGameCover(game.title);
         setCoverImage(imageUrl);
-        
-        // If this is a rated game, we could potentially update it with the cover
-        // but we'll leave that for another feature as it would require modifying the preferences context
       } catch (error) {
         console.error('Error fetching cover for game:', game.title, error);
       } finally {
@@ -89,7 +95,6 @@ export default function GameCard({
   }, [game.title, game.coverImage]);
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Don't navigate if the user clicked on an interactive element
     const target = e.target as HTMLElement;
     const isInteractiveElement = target.closest('button') || 
                                 target.closest('[role="button"]') || 
@@ -98,112 +103,131 @@ export default function GameCard({
                                 target.tagName === 'BUTTON';
     
     if (!isInteractiveElement) {
-      // Only navigate if the game has a valid numeric IGDB ID
       const numericId = parseInt(game.id);
       if (!isNaN(numericId)) {
         router.push(`/game/${game.id}`);
       }
-      // If it's not a numeric ID, don't navigate (recommendation games without IGDB ID)
     }
   };
 
-  // Check if this game is clickable (has valid IGDB ID)
   const isClickable = !isNaN(parseInt(game.id));
 
   return (
     <div 
-      className={`bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all duration-200 ${
-        isClickable ? 'hover:shadow-xl cursor-pointer' : ''
-      }`}
-      onClick={handleCardClick}
+      className={`relative group ${config.width}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex flex-row">
-        {/* Game cover image */}
-        <div className="relative w-24 h-32 flex-shrink-0">
-          {isLoadingCover ? (
-            <div className="w-full h-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
-          ) : coverImage ? (
-            <Image 
-              src={coverImage} 
-              alt={`Cover for ${game.title}`}
-              fill
-              sizes="(max-width: 768px) 96px, 96px"
-              className="object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-              <span className="text-xs text-gray-500 dark:text-gray-400 text-center p-1">No cover</span>
+      {/* Game Poster */}
+      <div 
+        className={`${config.height} relative rounded-lg overflow-hidden shadow-lg transition-all duration-300 ${
+          isClickable ? 'cursor-pointer hover:scale-105' : ''
+        } bg-letterboxd-card border border-letterboxd`}
+        onClick={handleCardClick}
+      >
+        {isLoadingCover ? (
+          <div className="w-full h-full bg-letterboxd-tertiary animate-pulse flex items-center justify-center">
+            <div className="text-muted text-xs">Loading...</div>
+          </div>
+        ) : coverImage ? (
+          <Image 
+            src={coverImage} 
+            alt={`Cover for ${game.title}`}
+            fill
+            sizes={size === 'small' ? '128px' : size === 'medium' ? '160px' : '192px'}
+            className="object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-letterboxd-tertiary flex items-center justify-center">
+            <div className="text-muted text-xs text-center p-2">
+              <FaEye className="mx-auto mb-2" />
+              No Cover
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Game details */}
-        <div className="p-4 flex-grow">
-          <div className="flex justify-between items-start">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{game.title}</h3>
-            {showActions && (
-              <div className="flex items-center space-x-2">
-                <button 
-                  onClick={handleRemove}
-                  disabled={isRemoveLoading}
-                  className="p-2 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 
-                    hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label="Remove game"
-                >
-                  {isRemoveLoading ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
-                  ) : (
-                    <FaTimes className="text-sm" />
-                  )}
-                </button>
+        {/* Hover Overlay */}
+        {isHovered && isClickable && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300">
+            <FaEye className="text-white text-xl" />
+          </div>
+        )}
+
+        {/* Rating Badge */}
+        {currentRating > 0 && (
+          <div className="absolute top-2 right-2 bg-letterboxd-green text-white text-xs font-bold px-2 py-1 rounded">
+            {currentRating}★
+          </div>
+        )}
+
+        {/* Match Score for Recommendations */}
+        {recommendation && recommendation.matchScore && (
+          <div className="absolute top-2 left-2 bg-letterboxd-orange text-white text-xs font-bold px-2 py-1 rounded">
+            {recommendation.matchScore}%
+          </div>
+        )}
+
+        {/* Remove Button */}
+        {showActions && (
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRemove();
+            }}
+            disabled={isRemoveLoading}
+            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-1 rounded-full bg-red-600 text-white hover:bg-red-700"
+            aria-label="Remove game"
+          >
+            {isRemoveLoading ? (
+              <div className="animate-spin rounded-full h-3 w-3 border border-white border-t-transparent"></div>
+            ) : (
+              <FaTimes className="text-xs" />
+            )}
+          </button>
+        )}
+      </div>
+
+      {/* Game Title */}
+      <div className="mt-3 px-1">
+        <h3 className={`${config.textSize} font-semibold text-white line-clamp-2 leading-tight`}>
+          {game.title}
+        </h3>
+        
+        {/* Star Rating */}
+        {showActions && (
+          <div className="mt-2 star-rating">
+            <StarRating 
+              rating={currentRating}
+              onRatingChange={handleRatingChange}
+              showClearButton={false}
+              size="sm"
+              disabled={isRatingLoading}
+            />
+            {isRatingLoading && (
+              <div className="mt-1 text-xs text-muted">
+                Updating...
               </div>
             )}
           </div>
-          
-          {/* Star Rating */}
-          {showActions && (
-            <div className="mt-2 star-rating">
-              <StarRating 
-                rating={currentRating}
-                onRatingChange={handleRatingChange}
-                showClearButton={true}
-                size="sm"
-                disabled={isRatingLoading}
-              />
-              {isRatingLoading && (
-                <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Updating rating...
-                </div>
-              )}
-            </div>
-          )}
-          
-          {/* Recommendation details */}
-          {recommendation && recommendation.matchScore && (
-            <div className="mt-2 flex items-center">
-              <div className="bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded text-xs font-medium text-blue-800 dark:text-blue-200">
-                Match: {recommendation.matchScore}%
-              </div>
-            </div>
-          )}
-          
-          {recommendation && recommendation.explanation && (
-            <div className="mt-3">
-              <button 
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="text-sm text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
-              >
-                {isExpanded ? "Hide explanation" : "Why this recommendation?"}
-              </button>
-              
-              {isExpanded && (
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-3 rounded">
-                  {recommendation.explanation}
-                </p>
-              )}
-            </div>
-          )}
-        </div>
+        )}
+
+        {/* Recommendation Explanation */}
+        {recommendation && recommendation.explanation && (
+          <div className="mt-2">
+            <button 
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-xs letterboxd-green hover:underline focus:outline-none"
+            >
+              {isExpanded ? "Hide" : "Why recommended?"}
+            </button>
+            
+            {isExpanded && (
+              <p className="mt-2 text-xs text-muted bg-letterboxd-tertiary p-2 rounded leading-relaxed">
+                {recommendation.explanation}
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

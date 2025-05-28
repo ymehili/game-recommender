@@ -40,13 +40,13 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       onClick={handleBackdropClick}
     >
       <div className="relative max-w-md w-full max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors duration-200"
+          className="absolute top-4 right-4 z-10 text-muted hover:text-white transition-colors duration-200"
           aria-label="Close modal"
         >
           <FaTimes className="h-6 w-6" />

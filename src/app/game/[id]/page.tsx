@@ -18,7 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import StarRating from '@/components/StarRating';
 import Image from 'next/image';
-import { FaArrowLeft, FaCalendar, FaGamepad, FaTags, FaStickyNote } from 'react-icons/fa';
+import { FaArrowLeft, FaCalendar, FaGamepad, FaTags, FaStickyNote, FaEye } from 'react-icons/fa';
 
 interface GameNote {
   id: string;
@@ -167,17 +167,17 @@ export default function GamePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-letterboxd">
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-32 mb-8"></div>
+            <div className="h-8 bg-letterboxd-tertiary rounded w-32 mb-8"></div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-1">
-                <div className="h-96 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                <div className="h-96 bg-letterboxd-tertiary rounded-lg"></div>
               </div>
               <div className="lg:col-span-2 space-y-4">
-                <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="h-12 bg-letterboxd-tertiary rounded"></div>
+                <div className="h-32 bg-letterboxd-tertiary rounded"></div>
               </div>
             </div>
           </div>
@@ -188,20 +188,20 @@ export default function GamePage() {
 
   if (error || !game) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-letterboxd">
         <div className="container mx-auto px-4 py-8">
           <button
             onClick={() => router.back()}
-            className="flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:underline mb-8"
+            className="flex items-center space-x-2 letterboxd-green hover:text-green-400 mb-8 transition-colors duration-200"
           >
             <FaArrowLeft />
             <span>Back</span>
           </button>
           <div className="text-center py-20">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            <h1 className="text-2xl font-bold text-white mb-4">
               {error || 'Game not found'}
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-muted">
               The game you're looking for could not be loaded.
             </p>
           </div>
@@ -211,12 +211,12 @@ export default function GamePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-letterboxd">
       <div className="container mx-auto px-4 py-8">
         {/* Back button */}
         <button
           onClick={() => router.back()}
-          className="flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:underline mb-8"
+          className="flex items-center space-x-2 letterboxd-green hover:text-green-400 mb-8 transition-colors duration-200"
         >
           <FaArrowLeft />
           <span>Back</span>
@@ -226,7 +226,7 @@ export default function GamePage() {
           {/* Game cover */}
           <div className="lg:col-span-1">
             <div className="sticky top-8">
-              <div className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-lg">
+              <div className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-lg border border-letterboxd">
                 {game.cover?.url ? (
                   <Image
                     src={`https:${game.cover.url.replace('t_thumb', 't_cover_big')}`}
@@ -235,16 +235,16 @@ export default function GamePage() {
                     className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                    <FaGamepad className="text-6xl text-gray-400" />
+                  <div className="w-full h-full bg-letterboxd-tertiary flex items-center justify-center">
+                    <FaEye className="text-6xl text-muted" />
                   </div>
                 )}
               </div>
 
               {/* Rating section */}
               {user && (
-                <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                <div className="mt-6 bg-letterboxd-card rounded-lg shadow-lg p-6 border border-letterboxd">
+                  <h3 className="text-lg font-semibold text-white mb-4">
                     Your Rating
                   </h3>
                   <StarRating
@@ -255,7 +255,7 @@ export default function GamePage() {
                     disabled={isRatingLoading}
                   />
                   {isRatingLoading && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    <p className="text-sm text-muted mt-2">
                       Updating rating...
                     </p>
                   )}
@@ -267,28 +267,28 @@ export default function GamePage() {
           {/* Game details */}
           <div className="lg:col-span-2 space-y-6">
             {/* Title and basic info */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <div className="bg-letterboxd-card rounded-lg shadow-lg p-6 border border-letterboxd">
+              <h1 className="text-4xl font-bold text-white mb-4">
                 {game.name}
               </h1>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 {game.first_release_date && (
-                  <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center space-x-2 text-muted">
                     <FaCalendar />
                     <span>Released: {formatReleaseDate(game.first_release_date)}</span>
                   </div>
                 )}
 
                 {game.platforms && game.platforms.length > 0 && (
-                  <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center space-x-2 text-muted">
                     <FaGamepad />
                     <span>{game.platforms.length} platform{game.platforms.length !== 1 ? 's' : ''}</span>
                   </div>
                 )}
 
                 {game.genres && game.genres.length > 0 && (
-                  <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center space-x-2 text-muted">
                     <FaTags />
                     <span>{game.genres.length} genre{game.genres.length !== 1 ? 's' : ''}</span>
                   </div>
@@ -298,11 +298,11 @@ export default function GamePage() {
 
             {/* Summary */}
             {game.summary && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              <div className="bg-letterboxd-card rounded-lg shadow-lg p-6 border border-letterboxd">
+                <h2 className="text-2xl font-bold text-white mb-4">
                   About This Game
                 </h2>
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                <p className="text-secondary leading-relaxed">
                   {game.summary}
                 </p>
               </div>
@@ -310,15 +310,15 @@ export default function GamePage() {
 
             {/* Platforms */}
             {game.platforms && game.platforms.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              <div className="bg-letterboxd-card rounded-lg shadow-lg p-6 border border-letterboxd">
+                <h2 className="text-2xl font-bold text-white mb-4">
                   Platforms
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   {game.platforms.map((platform) => (
                     <span
                       key={platform.id}
-                      className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-sm"
+                      className="bg-letterboxd-green/20 text-letterboxd-green px-3 py-1 rounded-full text-sm border border-letterboxd-green/30"
                     >
                       {platform.name}
                     </span>
@@ -329,15 +329,15 @@ export default function GamePage() {
 
             {/* Genres */}
             {game.genres && game.genres.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              <div className="bg-letterboxd-card rounded-lg shadow-lg p-6 border border-letterboxd">
+                <h2 className="text-2xl font-bold text-white mb-4">
                   Genres
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   {game.genres.map((genre) => (
                     <span
                       key={genre.id}
-                      className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-sm"
+                      className="bg-letterboxd-orange/20 text-letterboxd-orange px-3 py-1 rounded-full text-sm border border-letterboxd-orange/30"
                     >
                       {genre.name}
                     </span>
@@ -348,10 +348,10 @@ export default function GamePage() {
 
             {/* User notes */}
             {user && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+              <div className="bg-letterboxd-card rounded-lg shadow-lg p-6 border border-letterboxd">
                 <div className="flex items-center space-x-2 mb-4">
-                  <FaStickyNote className="text-yellow-500" />
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <FaStickyNote className="text-letterboxd-orange" />
+                  <h2 className="text-2xl font-bold text-white">
                     Your Notes
                   </h2>
                 </div>
@@ -359,19 +359,25 @@ export default function GamePage() {
                   value={userNote}
                   onChange={(e) => setUserNote(e.target.value)}
                   placeholder="Add your thoughts about this game..."
-                  className="w-full h-32 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
-                    focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-                    bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                    placeholder-gray-500 dark:placeholder-gray-400 resize-none"
+                  className="w-full h-32 px-4 py-3 border border-letterboxd rounded-lg 
+                    focus:ring-2 focus:ring-letterboxd-green focus:border-letterboxd-green 
+                    bg-letterboxd-tertiary text-white placeholder-text-muted resize-none transition-all duration-200"
                 />
                 <div className="flex justify-end mt-4">
                   <button
                     onClick={handleNoteSave}
                     disabled={isNoteSaving}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
-                      disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-6 py-2 bg-letterboxd-green text-white rounded-lg hover:bg-green-600 
+                      disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
                   >
-                    {isNoteSaving ? 'Saving...' : 'Save Note'}
+                    {isNoteSaving ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                        <span>Saving...</span>
+                      </div>
+                    ) : (
+                      'Save Note'
+                    )}
                   </button>
                 </div>
               </div>

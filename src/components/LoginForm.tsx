@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoginData } from '@/types/auth';
-import { FaEye, FaEyeSlash, FaEnvelope, FaLock } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaEnvelope, FaLock, FaGamepad } from 'react-icons/fa';
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
@@ -51,26 +51,30 @@ export default function LoginForm({ onSwitchToRegister, onClose }: LoginFormProp
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+      <div className="bg-letterboxd-card rounded-2xl shadow-2xl p-8 border border-letterboxd">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome Back</h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Sign in to your account</p>
+          <div className="flex items-center justify-center space-x-3 mb-4">
+            <FaGamepad className="text-3xl letterboxd-green" />
+            <h1 className="text-2xl font-bold text-white">gamelogd</h1>
+          </div>
+          <h2 className="text-2xl font-bold text-white">Welcome back</h2>
+          <p className="text-muted mt-2">Sign in to continue your gaming journey</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg">
+            <div className="bg-red-900/20 border border-red-800 text-red-400 px-4 py-3 rounded-lg">
               {error}
             </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
               Email Address
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaEnvelope className="h-5 w-5 text-gray-400" />
+                <FaEnvelope className="h-5 w-5 text-muted" />
               </div>
               <input
                 type="email"
@@ -79,19 +83,19 @@ export default function LoginForm({ onSwitchToRegister, onClose }: LoginFormProp
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200"
+                className="w-full pl-10 pr-4 py-3 border border-letterboxd rounded-lg focus:ring-2 focus:ring-letterboxd-green focus:border-letterboxd-green bg-letterboxd-tertiary text-white placeholder-text-muted transition-all duration-200"
                 placeholder="Enter your email"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
               Password
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaLock className="h-5 w-5 text-gray-400" />
+                <FaLock className="h-5 w-5 text-muted" />
               </div>
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -100,7 +104,7 @@ export default function LoginForm({ onSwitchToRegister, onClose }: LoginFormProp
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200"
+                className="w-full pl-10 pr-12 py-3 border border-letterboxd rounded-lg focus:ring-2 focus:ring-letterboxd-green focus:border-letterboxd-green bg-letterboxd-tertiary text-white placeholder-text-muted transition-all duration-200"
                 placeholder="Enter your password"
               />
               <button
@@ -109,9 +113,9 @@ export default function LoginForm({ onSwitchToRegister, onClose }: LoginFormProp
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
               >
                 {showPassword ? (
-                  <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <FaEyeSlash className="h-5 w-5 text-muted hover:text-secondary" />
                 ) : (
-                  <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <FaEye className="h-5 w-5 text-muted hover:text-secondary" />
                 )}
               </button>
             </div>
@@ -120,11 +124,11 @@ export default function LoginForm({ onSwitchToRegister, onClose }: LoginFormProp
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed"
+            className="w-full bg-letterboxd-green hover:bg-green-600 disabled:bg-green-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-letterboxd disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
                 Signing In...
               </div>
             ) : (
@@ -134,13 +138,13 @@ export default function LoginForm({ onSwitchToRegister, onClose }: LoginFormProp
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted">
             Don't have an account?{' '}
             <button
               onClick={onSwitchToRegister}
-              className="text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-200"
+              className="letterboxd-green hover:text-green-400 font-semibold transition-colors duration-200"
             >
-              Sign up
+              Create account
             </button>
           </p>
         </div>

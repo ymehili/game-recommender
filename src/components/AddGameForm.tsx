@@ -3,6 +3,7 @@ import { Game } from '@/types';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { searchGames, IGDBGame } from '@/utils/igdbApi';
 import StarRating from './StarRating';
+import { FaSearch, FaPlus } from 'react-icons/fa';
 
 export default function AddGameForm() {
   const [title, setTitle] = useState('');
@@ -106,37 +107,42 @@ export default function AddGameForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Rate a Game</h2>
+    <form onSubmit={handleSubmit} className="bg-letterboxd-card rounded-lg shadow-lg p-6 mb-8 border border-letterboxd">
+      <h2 className="text-2xl font-bold text-white mb-4 flex items-center space-x-2">
+        <FaPlus className="text-letterboxd-green" />
+        <span>Rate a Game</span>
+      </h2>
       
       <div className="space-y-4">
         {/* Game search input */}
         <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <FaSearch className="h-5 w-5 text-muted" />
+          </div>
           <input
             type="text"
             placeholder="Search for a game..."
             value={title}
             onChange={handleTitleChange}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
-              focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-              bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-              placeholder-gray-500 dark:placeholder-gray-400"
+            className="w-full pl-10 pr-4 py-3 border border-letterboxd rounded-lg 
+              focus:ring-2 focus:ring-letterboxd-green focus:border-letterboxd-green 
+              bg-letterboxd-tertiary text-white placeholder-text-muted transition-all duration-200"
           />
           
           {/* Search results dropdown */}
           {searchResults.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+            <div className="absolute z-10 w-full mt-1 bg-letterboxd-card border border-letterboxd rounded-lg shadow-lg max-h-60 overflow-y-auto">
               {searchResults.map((game) => (
                 <button
                   key={game.id}
                   type="button"
                   onClick={() => handleSelectGame(game)}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 
-                    text-gray-900 dark:text-white first:rounded-t-lg last:rounded-b-lg"
+                  className="w-full px-4 py-3 text-left hover:bg-letterboxd-tertiary 
+                    text-white first:rounded-t-lg last:rounded-b-lg transition-colors duration-200"
                 >
                   <div className="font-medium">{game.name}</div>
                   {game.first_release_date && (
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-sm text-muted">
                       {new Date(game.first_release_date * 1000).getFullYear()}
                     </div>
                   )}
@@ -147,15 +153,15 @@ export default function AddGameForm() {
           
           {/* Loading indicator */}
           {isSearching && (
-            <div className="absolute right-3 top-2">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-letterboxd-green border-t-transparent"></div>
             </div>
           )}
         </div>
 
         {/* Rating selection */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label className="block text-sm font-medium text-white">
             Rate this game:
           </label>
           <StarRating 
@@ -171,10 +177,20 @@ export default function AddGameForm() {
           <button
             type="submit"
             onClick={handleAddGame}
-            className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 rounded-lg bg-letterboxd-green text-white hover:bg-green-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center space-x-2"
             disabled={isSubmitting || !title.trim() || selectedRating === 0}
           >
-            {isSubmitting ? 'Adding...' : 'Add Game'}
+            {isSubmitting ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                <span>Adding...</span>
+              </>
+            ) : (
+              <>
+                <FaPlus className="h-4 w-4" />
+                <span>Add Game</span>
+              </>
+            )}
           </button>
         </div>
       </div>

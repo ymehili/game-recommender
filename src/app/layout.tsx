@@ -7,8 +7,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "AI Game Recommender",
-  description: "Get personalized video game recommendations based on your preferences using Gemini AI.",
+  title: "gamelogd",
+  description: "Discover and rate video games. Get personalized recommendations powered by AI.",
 };
 
 export default function RootLayout({
@@ -21,7 +21,7 @@ export default function RootLayout({
       <head>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8161806670678434" crossOrigin="anonymous"></script>
       </head>
-      <body className={`${inter.className} bg-gray-100 dark:bg-gray-900 min-h-screen`}>
+      <body className={`${inter.className} bg-letterboxd min-h-screen`}>
         <AuthProvider>
           <PreferencesProvider>
             {children}

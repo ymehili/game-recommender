@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { RegisterData } from '@/types/auth';
-import { FaEye, FaEyeSlash, FaEnvelope, FaLock, FaUser, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaEnvelope, FaLock, FaUser, FaCheck, FaTimes, FaGamepad } from 'react-icons/fa';
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
@@ -68,26 +68,30 @@ export default function RegisterForm({ onSwitchToLogin, onClose }: RegisterFormP
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+      <div className="bg-letterboxd-card rounded-2xl shadow-2xl p-8 border border-letterboxd">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Create Account</h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Join our gaming community</p>
+          <div className="flex items-center justify-center space-x-3 mb-4">
+            <FaGamepad className="text-3xl letterboxd-green" />
+            <h1 className="text-2xl font-bold text-white">gamelogd</h1>
+          </div>
+          <h2 className="text-2xl font-bold text-white">Create Account</h2>
+          <p className="text-muted mt-2">Join the gamelogd community</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg">
+            <div className="bg-red-900/20 border border-red-800 text-red-400 px-4 py-3 rounded-lg">
               {error}
             </div>
           )}
 
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="username" className="block text-sm font-medium text-white mb-2">
               Username
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaUser className="h-5 w-5 text-gray-400" />
+                <FaUser className="h-5 w-5 text-muted" />
               </div>
               <input
                 type="text"
@@ -97,19 +101,19 @@ export default function RegisterForm({ onSwitchToLogin, onClose }: RegisterFormP
                 onChange={handleChange}
                 required
                 minLength={3}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200"
+                className="w-full pl-10 pr-4 py-3 border border-letterboxd rounded-lg focus:ring-2 focus:ring-letterboxd-green focus:border-letterboxd-green bg-letterboxd-tertiary text-white placeholder-text-muted transition-all duration-200"
                 placeholder="Choose a username"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
               Email Address
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaEnvelope className="h-5 w-5 text-gray-400" />
+                <FaEnvelope className="h-5 w-5 text-muted" />
               </div>
               <input
                 type="email"
@@ -118,19 +122,19 @@ export default function RegisterForm({ onSwitchToLogin, onClose }: RegisterFormP
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200"
+                className="w-full pl-10 pr-4 py-3 border border-letterboxd rounded-lg focus:ring-2 focus:ring-letterboxd-green focus:border-letterboxd-green bg-letterboxd-tertiary text-white placeholder-text-muted transition-all duration-200"
                 placeholder="Enter your email"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
               Password
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaLock className="h-5 w-5 text-gray-400" />
+                <FaLock className="h-5 w-5 text-muted" />
               </div>
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -139,7 +143,7 @@ export default function RegisterForm({ onSwitchToLogin, onClose }: RegisterFormP
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200"
+                className="w-full pl-10 pr-12 py-3 border border-letterboxd rounded-lg focus:ring-2 focus:ring-letterboxd-green focus:border-letterboxd-green bg-letterboxd-tertiary text-white placeholder-text-muted transition-all duration-200"
                 placeholder="Create a strong password"
               />
               <button
@@ -148,9 +152,9 @@ export default function RegisterForm({ onSwitchToLogin, onClose }: RegisterFormP
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
               >
                 {showPassword ? (
-                  <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <FaEyeSlash className="h-5 w-5 text-muted hover:text-secondary" />
                 ) : (
-                  <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <FaEye className="h-5 w-5 text-muted hover:text-secondary" />
                 )}
               </button>
             </div>
@@ -161,11 +165,11 @@ export default function RegisterForm({ onSwitchToLogin, onClose }: RegisterFormP
                 {passwordChecks.map((check, index) => (
                   <div key={index} className="flex items-center text-sm">
                     {check.isValid ? (
-                      <FaCheck className="h-3 w-3 text-green-500 mr-2" />
+                      <FaCheck className="h-3 w-3 text-letterboxd-green mr-2" />
                     ) : (
-                      <FaTimes className="h-3 w-3 text-red-500 mr-2" />
+                      <FaTimes className="h-3 w-3 text-red-400 mr-2" />
                     )}
-                    <span className={check.isValid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                    <span className={check.isValid ? 'text-letterboxd-green' : 'text-red-400'}>
                       {check.label}
                     </span>
                   </div>
@@ -175,12 +179,12 @@ export default function RegisterForm({ onSwitchToLogin, onClose }: RegisterFormP
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-white mb-2">
               Confirm Password
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaLock className="h-5 w-5 text-gray-400" />
+                <FaLock className="h-5 w-5 text-muted" />
               </div>
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
@@ -189,7 +193,7 @@ export default function RegisterForm({ onSwitchToLogin, onClose }: RegisterFormP
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
-                className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200"
+                className="w-full pl-10 pr-12 py-3 border border-letterboxd rounded-lg focus:ring-2 focus:ring-letterboxd-green focus:border-letterboxd-green bg-letterboxd-tertiary text-white placeholder-text-muted transition-all duration-200"
                 placeholder="Confirm your password"
               />
               <button
@@ -198,9 +202,9 @@ export default function RegisterForm({ onSwitchToLogin, onClose }: RegisterFormP
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
               >
                 {showConfirmPassword ? (
-                  <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <FaEyeSlash className="h-5 w-5 text-muted hover:text-secondary" />
                 ) : (
-                  <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <FaEye className="h-5 w-5 text-muted hover:text-secondary" />
                 )}
               </button>
             </div>
@@ -210,13 +214,13 @@ export default function RegisterForm({ onSwitchToLogin, onClose }: RegisterFormP
               <div className="mt-2 flex items-center text-sm">
                 {passwordsMatch ? (
                   <>
-                    <FaCheck className="h-3 w-3 text-green-500 mr-2" />
-                    <span className="text-green-600 dark:text-green-400">Passwords match</span>
+                    <FaCheck className="h-3 w-3 text-letterboxd-green mr-2" />
+                    <span className="text-letterboxd-green">Passwords match</span>
                   </>
                 ) : (
                   <>
-                    <FaTimes className="h-3 w-3 text-red-500 mr-2" />
-                    <span className="text-red-600 dark:text-red-400">Passwords don't match</span>
+                    <FaTimes className="h-3 w-3 text-red-400 mr-2" />
+                    <span className="text-red-400">Passwords don't match</span>
                   </>
                 )}
               </div>
@@ -226,11 +230,11 @@ export default function RegisterForm({ onSwitchToLogin, onClose }: RegisterFormP
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed"
+            className="w-full bg-letterboxd-green hover:bg-green-600 disabled:bg-green-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-letterboxd disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
                 Creating Account...
               </div>
             ) : (
@@ -240,11 +244,11 @@ export default function RegisterForm({ onSwitchToLogin, onClose }: RegisterFormP
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted">
             Already have an account?{' '}
             <button
               onClick={onSwitchToLogin}
-              className="text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-200"
+              className="letterboxd-green hover:text-green-400 font-semibold transition-colors duration-200"
             >
               Sign in
             </button>

@@ -64,13 +64,13 @@ export default function StarRating({
 
     if (isFullStar) {
       starIcon = <FaStar />;
-      starColor = 'text-yellow-400';
+      starColor = 'letterboxd-green';
     } else if (isHalfStar) {
       starIcon = <FaStarHalfAlt />;
-      starColor = 'text-yellow-400';
+      starColor = 'letterboxd-green';
     } else {
       starIcon = <FaStar />;
-      starColor = 'text-gray-300 dark:text-gray-600';
+      starColor = 'text-muted';
     }
 
     return (
@@ -111,9 +111,9 @@ export default function StarRating({
   };
 
   const formatRating = (rating: number) => {
-    if (rating === 0) return '0/5';
-    if (rating % 1 === 0) return `${rating}/5`;
-    return `${rating}/5`;
+    if (rating === 0) return '';
+    if (rating % 1 === 0) return `${rating}★`;
+    return `${rating}★`;
   };
 
   return (
@@ -123,13 +123,13 @@ export default function StarRating({
         <button
           type="button"
           onClick={handleClear}
-          className="ml-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+          className="ml-2 text-xs text-muted hover:text-secondary transition-colors"
         >
           Clear
         </button>
       )}
       {rating > 0 && (
-        <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+        <span className="ml-2 text-sm text-secondary">
           {formatRating(rating)}
         </span>
       )}

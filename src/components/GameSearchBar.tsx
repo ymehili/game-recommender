@@ -108,44 +108,45 @@ export default function GameSearchBar({
           value={query}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          className="w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-            focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-            bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-            placeholder-gray-500 dark:placeholder-gray-400 text-lg"
+          className="w-full pl-12 pr-12 py-4 border border-letterboxd rounded-lg 
+            focus:ring-2 focus:ring-letterboxd-green focus:border-letterboxd-green 
+            bg-letterboxd-card text-white placeholder-text-muted text-lg
+            transition-all duration-200"
         />
         
         {/* Search icon */}
-        <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-          <FaSearch className="text-gray-400 dark:text-gray-500" />
+        <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+          <FaSearch className="text-muted" />
         </div>
         
         {/* Clear button */}
         {query && (
           <button
             onClick={handleClear}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-letterboxd-tertiary transition-colors"
           >
-            <FaTimes className="text-gray-400 dark:text-gray-500 text-sm" />
+            <FaTimes className="text-muted text-sm" />
           </button>
         )}
         
         {/* Loading indicator */}
         {isSearching && (
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+            <div className="animate-spin rounded-full h-5 w-5 border-2 border-letterboxd-green border-t-transparent"></div>
           </div>
         )}
       </div>
 
       {/* Search results dropdown */}
       {isOpen && searchResults.length > 0 && (
-        <div className="absolute z-50 w-full mt-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-2 bg-letterboxd-card border border-letterboxd rounded-lg shadow-lg max-h-96 overflow-y-auto">
           {searchResults.map((game) => (
             <button
               key={game.id}
               onClick={() => handleGameSelect(game)}
-              className="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-600 
-                text-gray-900 dark:text-white first:rounded-t-lg last:rounded-b-lg border-b border-gray-100 dark:border-gray-600 last:border-b-0"
+              className="w-full px-4 py-3 text-left hover:bg-letterboxd-tertiary 
+                text-white first:rounded-t-lg last:rounded-b-lg border-b border-letterboxd last:border-b-0
+                transition-colors duration-200"
             >
               <div className="flex items-center space-x-3">
                 {/* Game cover thumbnail */}
@@ -158,21 +159,21 @@ export default function GameSearchBar({
                     />
                   </div>
                 ) : (
-                  <div className="w-10 h-14 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center flex-shrink-0">
-                    <FaSearch className="text-gray-400 text-xs" />
+                  <div className="w-10 h-14 bg-letterboxd-tertiary rounded flex items-center justify-center flex-shrink-0">
+                    <FaSearch className="text-muted text-xs" />
                   </div>
                 )}
                 
                 {/* Game info */}
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate">{game.name}</div>
+                  <div className="font-medium truncate text-white">{game.name}</div>
                   {game.first_release_date && (
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-sm text-secondary">
                       {formatReleaseDate(game.first_release_date)}
                     </div>
                   )}
                   {game.platforms && game.platforms.length > 0 && (
-                    <div className="text-xs text-gray-400 dark:text-gray-500 truncate">
+                    <div className="text-xs text-muted truncate">
                       {game.platforms.slice(0, 2).map(p => p.name).join(', ')}
                       {game.platforms.length > 2 && ` +${game.platforms.length - 2} more`}
                     </div>
@@ -186,8 +187,8 @@ export default function GameSearchBar({
 
       {/* No results message */}
       {isOpen && !isSearching && query.trim() && searchResults.length === 0 && (
-        <div className="absolute z-50 w-full mt-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg">
-          <div className="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+        <div className="absolute z-50 w-full mt-2 bg-letterboxd-card border border-letterboxd rounded-lg shadow-lg">
+          <div className="px-4 py-6 text-center text-muted">
             No games found for "{query}"
           </div>
         </div>
