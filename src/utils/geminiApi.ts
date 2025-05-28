@@ -36,11 +36,35 @@ export const generateGameRecommendations = async (
     }, {} as Record<number, string[]>);
 
     const ratingDescriptions = [];
-    if (gamesByRating[5]) ratingDescriptions.push(`5-star games (absolutely loved): ${gamesByRating[5].join(', ')}`);
-    if (gamesByRating[4]) ratingDescriptions.push(`4-star games (really liked): ${gamesByRating[4].join(', ')}`);
-    if (gamesByRating[3]) ratingDescriptions.push(`3-star games (enjoyed): ${gamesByRating[3].join(', ')}`);
-    if (gamesByRating[2]) ratingDescriptions.push(`2-star games (didn't love): ${gamesByRating[2].join(', ')}`);
-    if (gamesByRating[1]) ratingDescriptions.push(`1-star games (disliked): ${gamesByRating[1].join(', ')}`);
+    
+    // Helper function to format rating labels
+    const getRatingDescription = (rating: number): string => {
+      switch (rating) {
+        case 5: return '5-star games (absolutely loved)';
+        case 4.5: return '4.5-star games (almost loved)';
+        case 4: return '4-star games (really liked)';
+        case 3.5: return '3.5-star games (liked quite a bit)';
+        case 3: return '3-star games (enjoyed/neutral)';
+        case 2.5: return '2.5-star games (mixed feelings)';
+        case 2: return '2-star games (didn\'t love)';
+        case 1.5: return '1.5-star games (didn\'t really like)';
+        case 1: return '1-star games (disliked)';
+        case 0.5: return '0.5-star games (really disliked)';
+        default: return `${rating}-star games`;
+      }
+    };
+
+    // Sort ratings in descending order and include all possible ratings
+    const possibleRatings = [5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5];
+    
+    for (const rating of possibleRatings) {
+      if (gamesByRating[rating] && gamesByRating[rating].length > 0) {
+        ratingDescriptions.push(`${getRatingDescription(rating)}: ${gamesByRating[rating].join(', ')}`);
+      }
+    }
+
+    console.log('Games by rating (including half-stars):', gamesByRating);
+    console.log('Rating descriptions being sent to AI:', ratingDescriptions);
 
     const count = request.count || 5; // Default to 5 recommendations
 
@@ -50,13 +74,16 @@ export const generateGameRecommendations = async (
     User's rated games:
     ${ratingDescriptions.join('\n')}
 
-    Analyze the patterns in the user's ratings:
-    - Games rated 4-5 stars likely have elements the user enjoys
-    - Games rated 1-2 stars likely have elements the user dislikes  
-    - Games rated 3 stars are neutral/okay
+    Analyze the patterns in the user's ratings using this half-star rating system:
+    - Games rated 4.5-5 stars: User absolutely loves these games
+    - Games rated 3.5-4 stars: User really likes these games  
+    - Games rated 2.5-3 stars: User enjoys these games but they're neutral/okay
+    - Games rated 1.5-2 stars: User doesn't love these games
+    - Games rated 0.5-1 stars: User dislikes these games
     
-    Recommend games that would likely receive 4-5 star ratings from this user based on their demonstrated preferences.
-    Consider genres, themes, gameplay mechanics, art styles, and other game elements.
+    Focus on recommending games that would likely receive 4+ star ratings from this user based on their demonstrated preferences.
+    Consider genres, themes, gameplay mechanics, art styles, difficulty levels, and other game elements.
+    Pay attention to the nuanced differences between similar ratings (e.g., 4 vs 4.5 stars shows stronger preference).
     
     For each recommendation, provide a brief explanation of why it matches their rating patterns.
     Assign a match score (0-100) based on how well it aligns with the user's demonstrated preferences.

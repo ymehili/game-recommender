@@ -5,7 +5,7 @@ export interface Game {
 }
 
 export interface RatedGame extends Game {
-  rating: number; // 1-5 stars
+  rating: number; // 0.5-5 stars in 0.5 increments
   dateRated?: Date;
 }
 

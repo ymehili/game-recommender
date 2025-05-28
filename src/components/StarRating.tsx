@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaStar } from 'react-icons/fa';
+import { FaStar, FaStarHalfAlt } from 'react-icons/fa';
 
 interface StarRatingProps {
   rating: number;
@@ -8,6 +8,7 @@ interface StarRatingProps {
   disabled?: boolean;
   size?: 'sm' | 'md' | 'lg';
   showClearButton?: boolean;
+  allowHalfStars?: boolean;
 }
 
 export default function StarRating({ 
@@ -16,7 +17,8 @@ export default function StarRating({
   readonly = false, 
   disabled = false,
   size = 'md',
-  showClearButton = false 
+  showClearButton = false,
+  allowHalfStars = true
 }: StarRatingProps) {
   const sizes = {
     sm: 'text-sm',
@@ -26,10 +28,24 @@ export default function StarRating({
 
   const isInteractive = !readonly && !disabled;
 
-  const handleStarClick = (starRating: number) => {
+  const handleStarClick = (starIndex: number, isHalfClick: boolean = false) => {
     if (isInteractive && onRatingChange) {
-      onRatingChange(starRating);
+      const newRating = allowHalfStars && isHalfClick ? starIndex - 0.5 : starIndex;
+      onRatingChange(newRating);
     }
+  };
+
+  const handleStarMouseEvent = (event: React.MouseEvent, starIndex: number) => {
+    if (!allowHalfStars) {
+      handleStarClick(starIndex);
+      return;
+    }
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const isLeftHalf = clickX < rect.width / 2;
+    
+    handleStarClick(starIndex, isLeftHalf);
   };
 
   const handleClear = () => {
@@ -38,28 +54,71 @@ export default function StarRating({
     }
   };
 
+  const renderStar = (starIndex: number) => {
+    const isFullStar = rating >= starIndex;
+    const isHalfStar = rating >= starIndex - 0.5 && rating < starIndex;
+    const isEmpty = rating < starIndex - 0.5;
+
+    let starIcon;
+    let starColor;
+
+    if (isFullStar) {
+      starIcon = <FaStar />;
+      starColor = 'text-yellow-400';
+    } else if (isHalfStar) {
+      starIcon = <FaStarHalfAlt />;
+      starColor = 'text-yellow-400';
+    } else {
+      starIcon = <FaStar />;
+      starColor = 'text-gray-300 dark:text-gray-600';
+    }
+
+    return (
+      <button
+        key={starIndex}
+        type="button"
+        onClick={(e) => handleStarMouseEvent(e, starIndex)}
+        disabled={readonly || disabled}
+        className={`relative ${sizes[size]} ${
+          !isInteractive
+            ? 'cursor-default opacity-50' 
+            : 'cursor-pointer hover:scale-110 transition-transform'
+        } ${starColor}`}
+        aria-label={`${starIndex} star${starIndex !== 1 ? 's' : ''}`}
+      >
+        {starIcon}
+        {/* Invisible overlay for half-star click detection */}
+        {allowHalfStars && isInteractive && (
+          <div className="absolute inset-0 flex">
+            <div 
+              className="w-1/2 h-full"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleStarClick(starIndex, true);
+              }}
+            />
+            <div 
+              className="w-1/2 h-full"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleStarClick(starIndex, false);
+              }}
+            />
+          </div>
+        )}
+      </button>
+    );
+  };
+
+  const formatRating = (rating: number) => {
+    if (rating === 0) return '0/5';
+    if (rating % 1 === 0) return `${rating}/5`;
+    return `${rating}/5`;
+  };
+
   return (
     <div className="flex items-center space-x-1">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <button
-          key={star}
-          type="button"
-          onClick={() => handleStarClick(star)}
-          disabled={readonly || disabled}
-          className={`${sizes[size]} ${
-            !isInteractive
-              ? 'cursor-default opacity-50' 
-              : 'cursor-pointer hover:scale-110 transition-transform'
-          } ${
-            star <= rating 
-              ? 'text-yellow-400' 
-              : 'text-gray-300 dark:text-gray-600'
-          }`}
-          aria-label={`${star} star${star !== 1 ? 's' : ''}`}
-        >
-          <FaStar />
-        </button>
-      ))}
+      {[1, 2, 3, 4, 5].map((star) => renderStar(star))}
       {showClearButton && rating > 0 && isInteractive && (
         <button
           type="button"
@@ -71,7 +130,7 @@ export default function StarRating({
       )}
       {rating > 0 && (
         <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-          {rating}/5
+          {formatRating(rating)}
         </span>
       )}
     </div>

@@ -33,9 +33,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (body.rating < 0 || body.rating > 5) {
+    // Validate rating range and half-star increments
+    if (body.rating < 0 || body.rating > 5 || (body.rating * 2) % 1 !== 0) {
       return NextResponse.json(
-        { success: false, message: 'Rating must be between 0 and 5' },
+        { success: false, message: 'Rating must be between 0 and 5 in half-star increments (0, 0.5, 1, 1.5, etc.)' },
         { status: 400 }
       );
     }
