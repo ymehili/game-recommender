@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { action, searchTerm, gameId } = body;
+    const { action, searchTerm, gameId, limit = 20 } = body;
 
     switch (action) {
       case 'search':
@@ -40,6 +40,31 @@ export async function POST(request: NextRequest) {
           .request('/games');
 
         return NextResponse.json({ data: searchResponse.data || [] });
+
+      case 'popular':
+        // Get popular games based on rating count and total rating
+        const popularResponse = await client
+          .fields(['name', 'slug', 'cover.url', 'first_release_date', 'summary', 'platforms.name', 'genres.name', 'rating', 'rating_count', 'total_rating'])
+          .where('rating_count > 100 & total_rating > 70 & category = 0')
+          .sort('total_rating desc')
+          .limit(limit)
+          .request('/games');
+
+        return NextResponse.json({ data: popularResponse.data || [] });
+
+      case 'recent':
+        // Get recently released games
+        const currentDate = Math.floor(Date.now() / 1000);
+        const oneYearAgo = currentDate - (365 * 24 * 60 * 60); // 1 year ago in seconds
+        
+        const recentResponse = await client
+          .fields(['name', 'slug', 'cover.url', 'first_release_date', 'summary', 'platforms.name', 'genres.name', 'rating', 'rating_count', 'total_rating'])
+          .where(`first_release_date > ${oneYearAgo} & first_release_date < ${currentDate} & category = 0`)
+          .sort('first_release_date desc')
+          .limit(limit)
+          .request('/games');
+
+        return NextResponse.json({ data: recentResponse.data || [] });
 
       case 'getById':
         if (!gameId) {

@@ -1,21 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import GameLists from '@/components/GameLists';
-import GameRecommendations from '@/components/GameRecommendations';
+import RecentGames from '@/components/RecentGames';
 import GameSearchBar from '@/components/GameSearchBar';
-import AuthButton from '@/components/AuthButton';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePreferences } from '@/contexts/PreferencesContext';
-import { FaGamepad, FaSignInAlt, FaFilm, FaSearch, FaList, FaUser, FaHome, FaBars, FaBell, FaEllipsisH } from 'react-icons/fa';
+import { FaGamepad, FaSignInAlt, FaFilm, FaSearch, FaList, FaUser, FaHome, FaBars, FaBell, FaEllipsisH, FaChartLine, FaFire } from 'react-icons/fa';
+import Link from 'next/link';
 
 export default function Home() {
   const { user, isLoading: authLoading } = useAuth();
-  const { preferences, isLoading: preferencesLoading } = usePreferences();
-  const { ratedGames } = preferences;
-  const [apiKeyConfigured, setApiKeyConfigured] = useState<boolean>(
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY ? true : false
-  );
 
   return (
     <div className="min-h-screen bg-letterboxd">
@@ -24,14 +17,18 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <div className="flex items-center space-x-3">
+            <Link href="/" className="flex items-center space-x-3">
               <FaGamepad className="text-2xl letterboxd-green" />
               <h1 className="text-xl font-bold text-white">gamelogd</h1>
-            </div>
+            </Link>
 
             {/* Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
-              <a href="#" className="text-white hover:letterboxd-green transition-colors flex items-center space-x-1 font-medium">
+              <Link href="/" className="text-white hover:letterboxd-green transition-colors flex items-center space-x-1 font-medium border-b-2 border-letterboxd-green pb-1">
+                <FaHome className="text-sm" />
+                <span>HOME</span>
+              </Link>
+              <a href="#" className="text-secondary hover:text-white transition-colors flex items-center space-x-1 font-medium">
                 <FaFilm className="text-sm" />
                 <span>GAMES</span>
               </a>
@@ -56,90 +53,21 @@ export default function Home() {
               {user ? (
                 <div className="flex items-center space-x-3">
                   <FaBell className="text-secondary hover:text-white cursor-pointer text-lg" />
-                  <div className="w-8 h-8 rounded-full bg-letterboxd-green flex items-center justify-center text-white font-bold text-sm cursor-pointer">
-                    {user.username?.charAt(0).toUpperCase() || 'U'}
-                  </div>
+                  <Link href="/profile">
+                    <div className="w-8 h-8 rounded-full bg-letterboxd-green flex items-center justify-center text-white font-bold text-sm cursor-pointer">
+                      {user.username?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                  </Link>
                 </div>
               ) : (
-                <button className="bg-letterboxd-green text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-600 transition-colors">
-                  + LOG
-                </button>
+                <Link href="/login" className="bg-letterboxd-green text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-600 transition-colors">
+                  SIGN IN
+                </Link>
               )}
             </div>
           </div>
         </div>
       </header>
-
-      {user && (
-        // User Profile Section (like Letterboxd's profile header)
-        <div className="bg-letterboxd-secondary border-b border-letterboxd">
-          <div className="container mx-auto px-4 py-6">
-            <div className="flex items-center space-x-6">
-              <div className="w-20 h-20 rounded-full bg-letterboxd-green flex items-center justify-center text-white font-bold text-2xl">
-                {user.username?.charAt(0).toUpperCase() || 'U'}
-              </div>
-              <div className="flex-1">
-                <h1 className="text-3xl font-bold text-white mb-2">{user.username}</h1>
-                <div className="flex items-center space-x-8 text-muted">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Activity</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-white border-b-2 border-letterboxd-green pb-1">
-                    <span className="font-medium">Games</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Diary</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Reviews</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Watchlist</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Lists</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Likes</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Tags</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Network</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-muted text-sm">Sort by</span>
-                <select className="bg-letterboxd-tertiary text-white text-sm rounded px-2 py-1 border border-letterboxd">
-                  <option>RELEASE DATE</option>
-                  <option>DATE RATED</option>
-                  <option>RATING</option>
-                  <option>TITLE</option>
-                </select>
-                <div className="flex border border-letterboxd rounded">
-                  <button className="p-2 bg-letterboxd-tertiary text-white">
-                    <div className="grid grid-cols-2 gap-0.5 w-3 h-3">
-                      <div className="bg-white rounded-sm"></div>
-                      <div className="bg-white rounded-sm"></div>
-                      <div className="bg-white rounded-sm"></div>
-                      <div className="bg-white rounded-sm"></div>
-                    </div>
-                  </button>
-                  <button className="p-2 text-muted hover:text-white">
-                    <div className="flex space-x-1">
-                      <div className="w-1 h-3 bg-current rounded"></div>
-                      <div className="w-1 h-3 bg-current rounded"></div>
-                      <div className="w-1 h-3 bg-current rounded"></div>
-                    </div>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       <main className="container mx-auto px-4 py-8">
         {!user ? (
@@ -175,6 +103,11 @@ export default function Home() {
                 </p>
               </div>
             )}
+
+            {/* Recent Games Section */}
+            <section className="mb-12">
+              <RecentGames />
+            </section>
 
             <div className="max-w-4xl mx-auto text-center py-12">
               <div className="bg-letterboxd-card border border-letterboxd rounded-lg p-8">
@@ -234,21 +167,76 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
+
+                <div className="mt-8 space-y-4">
+                  <Link 
+                    href="/register"
+                    className="bg-letterboxd-green text-white px-6 py-3 rounded font-medium hover:bg-green-600 transition-colors inline-block"
+                  >
+                    Get Started
+                  </Link>
+                  <div className="text-muted">
+                    Already have an account? <Link href="/login" className="text-letterboxd-green hover:underline">Sign in here</Link>
+                  </div>
+                </div>
               </div>
             </div>
           </>
-        ) : authLoading ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-2 border-letterboxd-green border-t-transparent"></div>
-          </div>
         ) : (
           <>
-            <section className="mb-12">
-              <GameLists />
+            {/* Welcome section for logged in users */}
+            <section className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h1 className="text-3xl font-bold text-white mb-2">
+                    Welcome back, {user.username}!
+                  </h1>
+                  <p className="text-muted">
+                    Discover new games and see what's trending in the gaming community.
+                  </p>
+                </div>
+                <Link 
+                  href="/profile"
+                  className="bg-letterboxd-green text-white px-4 py-2 rounded font-medium hover:bg-green-600 transition-colors flex items-center space-x-2"
+                >
+                  <FaUser />
+                  <span>View Profile</span>
+                </Link>
+              </div>
             </section>
 
+            {/* Recent Games Section */}
             <section className="mb-12">
-              <GameRecommendations />
+              <RecentGames />
+            </section>
+
+            {/* Quick Actions */}
+            <section className="mb-12">
+              <div className="bg-letterboxd-card border border-letterboxd rounded-lg p-6">
+                <h3 className="text-xl font-bold text-white mb-4">Quick Actions</h3>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <Link 
+                    href="/profile"
+                    className="bg-letterboxd-secondary border border-letterboxd rounded-lg p-4 hover:border-letterboxd-green transition-colors group"
+                  >
+                    <FaUser className="text-letterboxd-green text-2xl mb-2 group-hover:scale-110 transition-transform" />
+                    <h4 className="text-white font-medium">My Games</h4>
+                    <p className="text-muted text-sm">View and manage your game collection</p>
+                  </Link>
+                  
+                  <div className="bg-letterboxd-secondary border border-letterboxd rounded-lg p-4 hover:border-letterboxd-green transition-colors group cursor-pointer">
+                    <FaList className="text-letterboxd-green text-2xl mb-2 group-hover:scale-110 transition-transform" />
+                    <h4 className="text-white font-medium">Browse Lists</h4>
+                    <p className="text-muted text-sm">Explore curated game collections</p>
+                  </div>
+                  
+                  <div className="bg-letterboxd-secondary border border-letterboxd rounded-lg p-4 hover:border-letterboxd-green transition-colors group cursor-pointer">
+                    <FaChartLine className="text-letterboxd-green text-2xl mb-2 group-hover:scale-110 transition-transform" />
+                    <h4 className="text-white font-medium">Trending</h4>
+                    <p className="text-muted text-sm">See what's hot in gaming right now</p>
+                  </div>
+                </div>
+              </div>
             </section>
           </>
         )}
