@@ -4,6 +4,7 @@ import { usePreferences } from '@/contexts/PreferencesContext';
 import { useAuth } from '@/contexts/AuthContext';
 import GameCard from './GameCard';
 import { FaSync, FaRobot, FaMagic } from 'react-icons/fa';
+import { getGameIdByTitle } from '@/utils/igdbApi';
 
 export default function GameRecommendations() {
   const { user } = useAuth();
@@ -24,6 +25,7 @@ export default function GameRecommendations() {
     setError(null);
 
     try {
+      // First, get recommendations from Gemini API
       const response = await fetch('/api/gemini', {
         method: 'POST',
         headers: {
@@ -47,7 +49,28 @@ export default function GameRecommendations() {
         return;
       }
 
-      setRecommendations(data.recommendations || []);
+      const geminiRecommendations = data.recommendations || [];
+      
+      // Now look up IGDB IDs for each recommended game
+      const recommendationsWithIds = await Promise.all(
+        geminiRecommendations.map(async (rec: GameRecommendation, index: number) => {
+          try {
+            const igdbId = await getGameIdByTitle(rec.title);
+            return {
+              ...rec,
+              id: igdbId ? igdbId.toString() : `temp-${index}-${rec.title.replace(/\s+/g, '-').toLowerCase()}`
+            };
+          } catch (error) {
+            console.error(`Failed to get IGDB ID for ${rec.title}:`, error);
+            return {
+              ...rec,
+              id: `temp-${index}-${rec.title.replace(/\s+/g, '-').toLowerCase()}`
+            };
+          }
+        })
+      );
+
+      setRecommendations(recommendationsWithIds);
     } catch (err) {
       console.error('Failed to fetch recommendations:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch recommendations');
@@ -118,7 +141,7 @@ export default function GameRecommendations() {
         <div className="space-y-4">
           <div className="text-center text-muted mb-6">
             <FaRobot className="mx-auto text-3xl mb-2 animate-pulse letterboxd-green" />
-            <p>AI is analyzing your taste...</p>
+            <p>AI is analyzing your taste and finding game details...</p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {[1, 2, 3, 4, 5].map((i) => (

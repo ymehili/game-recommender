@@ -11,12 +11,11 @@ const gameRecommendationSchema: Schema = {
   items: {
     type: Type.OBJECT,
     properties: {
-      id: { type: Type.STRING },
       title: { type: Type.STRING },
       explanation: { type: Type.STRING },
       matchScore: { type: Type.NUMBER },
     },
-    required: ["id", "title", "explanation", "matchScore"],
+    required: ["title", "explanation", "matchScore"],
   },
 };
 
@@ -87,7 +86,7 @@ export const generateGameRecommendations = async (
     
     For each recommendation, provide a brief explanation of why it matches their rating patterns.
     Assign a match score (0-100) based on how well it aligns with the user's demonstrated preferences.
-    The ID should be a unique string for each game.
+    Only provide the game title, explanation, and match score. Do not include an ID field.
     `;
 
     console.log('Sending prompt to Gemini API:', prompt);
