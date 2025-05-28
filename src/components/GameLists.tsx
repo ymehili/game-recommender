@@ -310,7 +310,7 @@ export default function GameLists() {
 
           {/* Game Poster Grid - Letterboxd Style */}
           {sortedGames.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8 gap-3 p-1">
               {sortedGames.map((game) => (
                 <div key={game.id} className="group relative">
                   <GameCard 

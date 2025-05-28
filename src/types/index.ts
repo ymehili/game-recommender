@@ -34,6 +34,8 @@ export interface GameNote {
 
 export interface UserPreferences {
   ratedGames: RatedGame[];
+  lastRecommendationRefresh?: Date; // Track when user last refreshed recommendations
+  cachedRecommendations?: GameRecommendation[]; // Store recommendations for the day
 }
 
 export interface RecommendationRequest {

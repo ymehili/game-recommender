@@ -1,13 +1,15 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { FaGamepad, FaHome } from 'react-icons/fa';
+import { FaGamepad, FaHome, FaUser } from 'react-icons/fa';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import GameSearchBar from './GameSearchBar';
 import AuthButton from './AuthButton';
 
 export default function Header() {
   const { user } = useAuth();
+  const pathname = usePathname();
 
   return (
     <header className="bg-letterboxd-secondary border-b border-letterboxd sticky top-0 z-50">
@@ -21,13 +23,24 @@ export default function Header() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-white hover:letterboxd-green transition-colors flex items-center space-x-1 font-medium border-b-2 border-letterboxd-green pb-1">
+            <Link 
+              href="/" 
+              className={`hover:letterboxd-green transition-colors flex items-center space-x-1 font-medium ${
+                pathname === '/' ? 'text-white' : 'text-secondary'
+              }`}
+            >
               <FaHome className="text-sm" />
               <span>HOME</span>
             </Link>
             {user && (
-              <Link href="/profile" className="text-secondary hover:text-white transition-colors font-medium">
-                PROFILE
+              <Link 
+                href="/profile" 
+                className={`hover:text-white transition-colors font-medium flex items-center space-x-1 ${
+                  pathname === '/profile' ? 'text-white' : 'text-secondary'
+                }`}
+              >
+                <FaUser className="text-sm" />
+                <span>PROFILE</span>
               </Link>
             )}
           </nav>

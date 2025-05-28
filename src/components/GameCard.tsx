@@ -116,7 +116,7 @@ export default function GameCard({
 
   return (
     <div 
-      className={`relative group ${config.width}`}
+      className={`relative group ${config.width} overflow-visible`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -173,7 +173,7 @@ export default function GameCard({
         )}
 
         {/* Simple rating display for small cards without quick rating */}
-        {size === 'small' && !enableQuickRating && currentRating > 0 && isHovered && (
+        {size === 'small' && !enableQuickRating && currentRating > 0 && isHovered && !isRecommendation && (
           <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center transition-opacity duration-300">
             <div className="text-white text-lg font-bold">
               {currentRating}★
@@ -181,16 +181,31 @@ export default function GameCard({
           </div>
         )}
 
+        {/* Match score display for small recommendation cards on hover */}
+        {size === 'small' && isRecommendation && recommendation && recommendation.matchScore && isHovered && (
+          <div className="absolute inset-0 bg-black bg-opacity-85 flex flex-col items-center justify-center transition-opacity duration-300">
+            <div className="text-letterboxd-orange text-lg font-bold mb-1">
+              {recommendation.matchScore}%
+            </div>
+            <div className="text-white text-xs">Match Score</div>
+            {recommendation.explanation && (
+              <div className="text-white text-xs mt-2 opacity-75 text-center px-2">
+                Click to see why
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Rating Badge for medium/large */}
-        {size !== 'small' && currentRating > 0 && (
-          <div className="absolute top-2 right-2 bg-letterboxd-green text-white text-xs font-bold px-2 py-1 rounded">
+        {size !== 'small' && currentRating > 0 && !isRecommendation && (
+          <div className="absolute top-2 right-2 bg-letterboxd-green text-white text-xs font-bold px-2 py-1 rounded shadow-lg">
             {currentRating}★
           </div>
         )}
 
         {/* Match Score for Recommendations */}
         {recommendation && recommendation.matchScore && size !== 'small' && (
-          <div className="absolute top-2 left-2 bg-letterboxd-orange text-white text-xs font-bold px-2 py-1 rounded">
+          <div className="absolute top-2 left-2 bg-letterboxd-orange text-white text-xs font-bold px-2 py-1 rounded shadow-lg z-10">
             {recommendation.matchScore}%
           </div>
         )}
@@ -203,7 +218,7 @@ export default function GameCard({
               handleRemove();
             }}
             disabled={isRemoveLoading}
-            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-1 rounded-full bg-red-600 text-white hover:bg-red-700"
+            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-1 rounded-full bg-red-600 text-white hover:bg-red-700 shadow-lg"
             aria-label="Remove game"
           >
             {isRemoveLoading ? (
@@ -215,9 +230,16 @@ export default function GameCard({
         )}
 
         {/* Small rating indicator for small cards */}
-        {size === 'small' && currentRating > 0 && (
-          <div className="absolute -top-1 -right-1 w-6 h-6 bg-letterboxd-green rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">
+        {size === 'small' && currentRating > 0 && !isRecommendation && (
+          <div className="absolute top-1 right-1 w-6 h-6 bg-letterboxd-green rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg z-10">
             {currentRating}
+          </div>
+        )}
+
+        {/* Small match score indicator for small recommendation cards */}
+        {size === 'small' && isRecommendation && recommendation && recommendation.matchScore && (
+          <div className="absolute top-1 right-1 min-w-[28px] h-5 bg-letterboxd-orange rounded flex items-center justify-center text-white text-xs font-bold shadow-lg z-10 px-1">
+            {recommendation.matchScore}%
           </div>
         )}
       </div>
@@ -249,16 +271,16 @@ export default function GameCard({
 
           {/* Recommendation Explanation */}
           {recommendation && recommendation.explanation && (
-            <div className="mt-2">
+            <div className="mt-3">
               <button 
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="text-xs letterboxd-green hover:underline focus:outline-none"
+                className="text-xs letterboxd-green hover:underline focus:outline-none font-medium"
               >
                 {isExpanded ? "Hide" : "Why recommended?"}
               </button>
               
               {isExpanded && (
-                <p className="mt-2 text-xs text-muted bg-letterboxd-tertiary p-2 rounded leading-relaxed">
+                <p className="mt-2 text-xs text-secondary bg-letterboxd-tertiary p-3 rounded-lg leading-relaxed border border-letterboxd">
                   {recommendation.explanation}
                 </p>
               )}

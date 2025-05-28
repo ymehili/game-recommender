@@ -63,7 +63,12 @@ export const PreferencesProvider = ({ children }: { children: ReactNode }) => {
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.preferences) {
-          setPreferences(data.preferences);
+          // Ensure lastRecommendationRefresh is properly converted to Date if it exists
+          const preferences = data.preferences;
+          if (preferences.lastRecommendationRefresh) {
+            preferences.lastRecommendationRefresh = new Date(preferences.lastRecommendationRefresh);
+          }
+          setPreferences(preferences);
           return;
         }
       }

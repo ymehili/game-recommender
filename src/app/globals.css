@@ -67,8 +67,16 @@ body {
   color: var(--accent-green);
 }
 
+.bg-letterboxd-green {
+  background-color: var(--accent-green);
+}
+
 .letterboxd-orange {
   color: var(--accent-orange);
+}
+
+.bg-letterboxd-orange {
+  background-color: var(--accent-orange);
 }
 
 .text-muted {

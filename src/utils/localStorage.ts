@@ -41,9 +41,18 @@ export const loadUserPreferences = (): UserPreferences => {
           });
         }
         
-        const migratedPreferences = { ratedGames };
+        const migratedPreferences: UserPreferences = { 
+          ratedGames,
+          lastRecommendationRefresh: undefined, // No previous refresh data for migrated users
+          cachedRecommendations: undefined // No cached recommendations for migrated users
+        };
         saveUserPreferences(migratedPreferences);
         return migratedPreferences;
+      }
+      
+      // Ensure lastRecommendationRefresh is properly typed as Date if it exists
+      if (parsed.lastRecommendationRefresh) {
+        parsed.lastRecommendationRefresh = new Date(parsed.lastRecommendationRefresh);
       }
       
       return parsed;
@@ -82,7 +91,12 @@ export const rateGame = (game: Game, rating: number): UserPreferences => {
     ? [...filteredGames, { ...game, rating, dateRated: new Date() }]
     : filteredGames;
   
-  const updatedPreferences = { ratedGames: updatedGames };
+  const updatedPreferences: UserPreferences = { 
+    ratedGames: updatedGames,
+    // Preserve existing recommendation data
+    lastRecommendationRefresh: preferences.lastRecommendationRefresh,
+    cachedRecommendations: preferences.cachedRecommendations
+  };
   saveUserPreferences(updatedPreferences);
   return updatedPreferences;
 };
@@ -93,8 +107,11 @@ export const rateGame = (game: Game, rating: number): UserPreferences => {
 export const removeGameRating = (gameId: string): UserPreferences => {
   const preferences = loadUserPreferences();
   
-  const updatedPreferences = {
-    ratedGames: preferences.ratedGames.filter(g => g.id !== gameId)
+  const updatedPreferences: UserPreferences = {
+    ratedGames: preferences.ratedGames.filter(g => g.id !== gameId),
+    // Preserve existing recommendation data
+    lastRecommendationRefresh: preferences.lastRecommendationRefresh,
+    cachedRecommendations: preferences.cachedRecommendations
   };
   
   saveUserPreferences(updatedPreferences);

@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { GameRecommendation, RecommendationResponse } from '@/types';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { useAuth } from '@/contexts/AuthContext';
 import GameCard from './GameCard';
-import { FaSync, FaRobot, FaMagic } from 'react-icons/fa';
+import { FaRobot, FaMagic } from 'react-icons/fa';
 import { getGameIdByTitle } from '@/utils/igdbApi';
+import { getAuthHeaders } from '@/utils/cookies';
 
 export default function GameRecommendations() {
   const { user } = useAuth();
@@ -12,6 +13,14 @@ export default function GameRecommendations() {
   const [recommendations, setRecommendations] = useState<GameRecommendation[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Create a stable hash of rated games to detect changes
+  const ratedGamesHash = useMemo(() => {
+    return preferences.ratedGames
+      .map(game => `${game.id}:${game.rating}`)
+      .sort()
+      .join('|');
+  }, [preferences.ratedGames]);
 
   const fetchRecommendations = async () => {
     // Don't fetch if there are no rated games yet
@@ -25,17 +34,32 @@ export default function GameRecommendations() {
     setError(null);
 
     try {
-      // First, get recommendations from Gemini API
-      const response = await fetch('/api/gemini', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ratedGames: preferences.ratedGames,
-          count: 5
-        }),
-      });
+      let response;
+      
+      if (user) {
+        // Authenticated users use the caching endpoint
+        const headers = getAuthHeaders();
+        response = await fetch('/api/recommendations', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            ratedGames: preferences.ratedGames,
+            count: 5
+          }),
+        });
+      } else {
+        // Non-authenticated users use the original endpoint (no caching)
+        response = await fetch('/api/gemini', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ratedGames: preferences.ratedGames,
+            count: 5
+          }),
+        });
+      }
 
       const data = await response.json();
 
@@ -79,12 +103,12 @@ export default function GameRecommendations() {
     }
   };
 
-  // Fetch recommendations whenever rated games change
+  // Fetch recommendations when component mounts or when rated games change
   useEffect(() => {
-    if (user && preferences.ratedGames.length > 0) {
+    if (preferences.ratedGames.length > 0) {
       fetchRecommendations();
     }
-  }, [user, preferences.ratedGames.length]);
+  }, [user, ratedGamesHash]);
 
   // Check if we have no rated games
   const hasNoGames = preferences.ratedGames.length === 0;
@@ -102,18 +126,12 @@ export default function GameRecommendations() {
               Curated for {user.username} based on your ratings
             </p>
           )}
+          {user && !hasNoGames && (
+            <p className="text-sm text-muted mt-1">
+              Recommendations refresh daily based on your game ratings
+            </p>
+          )}
         </div>
-        <button
-          onClick={fetchRecommendations}
-          disabled={isLoading || hasNoGames || !user}
-          className="flex items-center space-x-2 px-6 py-3 bg-letterboxd-green text-white rounded-lg 
-            hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 
-            focus:ring-offset-letterboxd transition-colors duration-200
-            disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-        >
-          <FaSync className={isLoading ? 'animate-spin' : ''} />
-          <span>Get Fresh Picks</span>
-        </button>
       </div>
 
       {!user ? (
@@ -156,7 +174,7 @@ export default function GameRecommendations() {
           </div>
         </div>
       ) : recommendations.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-1">
           {recommendations.map((game) => (
             <GameCard 
               key={game.id} 
@@ -177,7 +195,7 @@ export default function GameRecommendations() {
             <p className="text-xl text-secondary">
               {hasNoGames 
                 ? 'Rate some games to unlock AI-powered recommendations tailored to your taste' 
-                : 'Try refreshing or adding more game ratings to improve recommendations'}
+                : 'Try adding more game ratings to improve recommendations'}
             </p>
           </div>
         </div>

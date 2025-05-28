@@ -66,7 +66,22 @@ export const findUserById = async (id: string): Promise<User | null> => {
 export const getUserPreferences = async (userId: string): Promise<UserPreferences | null> => {
   try {
     const preferences = await kv.get<UserPreferences>(`${USER_PREFERENCES_PREFIX}${userId}`);
-    return preferences || { ratedGames: [] };
+    
+    if (!preferences) {
+      return { ratedGames: [] };
+    }
+    
+    // Ensure lastRecommendationRefresh is properly converted to Date if it exists
+    if (preferences.lastRecommendationRefresh && typeof preferences.lastRecommendationRefresh === 'string') {
+      preferences.lastRecommendationRefresh = new Date(preferences.lastRecommendationRefresh);
+    }
+    
+    // Ensure cachedRecommendations exist (for migration)
+    if (!preferences.cachedRecommendations) {
+      preferences.cachedRecommendations = undefined;
+    }
+    
+    return preferences;
   } catch (error) {
     console.error('Error getting user preferences:', error);
     return null;
