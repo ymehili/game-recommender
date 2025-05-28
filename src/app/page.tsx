@@ -201,35 +201,6 @@ export default function Home() {
             <section className="mb-12">
               <RecentGames />
             </section>
-
-            {/* Quick Actions */}
-            <section className="mb-12">
-              <div className="bg-letterboxd-card border border-letterboxd rounded-lg p-6">
-                <h3 className="text-xl font-bold text-white mb-4">Quick Actions</h3>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <Link 
-                    href="/profile"
-                    className="bg-letterboxd-secondary border border-letterboxd rounded-lg p-4 hover:border-letterboxd-green transition-colors group"
-                  >
-                    <FaUser className="text-letterboxd-green text-2xl mb-2 group-hover:scale-110 transition-transform" />
-                    <h4 className="text-white font-medium">My Games</h4>
-                    <p className="text-muted text-sm">View and manage your game collection</p>
-                  </Link>
-                  
-                  <div className="bg-letterboxd-secondary border border-letterboxd rounded-lg p-4 hover:border-letterboxd-green transition-colors group cursor-pointer">
-                    <FaList className="text-letterboxd-green text-2xl mb-2 group-hover:scale-110 transition-transform" />
-                    <h4 className="text-white font-medium">Browse Lists</h4>
-                    <p className="text-muted text-sm">Explore curated game collections</p>
-                  </div>
-                  
-                  <div className="bg-letterboxd-secondary border border-letterboxd rounded-lg p-4 hover:border-letterboxd-green transition-colors group cursor-pointer">
-                    <FaChartLine className="text-letterboxd-green text-2xl mb-2 group-hover:scale-110 transition-transform" />
-                    <h4 className="text-white font-medium">Trending</h4>
-                    <p className="text-muted text-sm">See what's hot in gaming right now</p>
-                  </div>
-                </div>
-              </div>
-            </section>
           </>
         )}
       </main>

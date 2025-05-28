@@ -135,35 +135,6 @@ export default function Profile() {
               </div>
               <div className="flex-1">
                 <h1 className="text-3xl font-bold text-white mb-2">{user.username}</h1>
-                <div className="flex items-center space-x-8 text-muted">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Activity</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-white border-b-2 border-letterboxd-green pb-1">
-                    <span className="font-medium">Games</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Diary</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Reviews</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Watchlist</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Lists</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Likes</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Tags</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium">Network</span>
-                  </div>
-                </div>
               </div>
               <div className="flex items-center space-x-2">
                 <span className="text-muted text-sm">Sort by</span>
