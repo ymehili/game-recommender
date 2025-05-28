@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import AddGameForm from '@/components/AddGameForm';
 import GameLists from '@/components/GameLists';
 import GameRecommendations from '@/components/GameRecommendations';
+import GameSearchBar from '@/components/GameSearchBar';
 import AuthButton from '@/components/AuthButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { FaGamepad, FaSignInAlt } from 'react-icons/fa';
@@ -27,9 +27,20 @@ export default function Home() {
             AI Game Recommender
           </h1>
         </div>
-        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-8">
           Tell us about games you like and dislike, and we'll use AI to recommend new games tailored to your taste.
         </p>
+        
+        {/* Game Search Bar */}
+        <div className="max-w-2xl mx-auto mb-6">
+          <GameSearchBar 
+            placeholder="Search for any game to view details and add notes..."
+            className="w-full"
+          />
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            Search for games to view detailed information, rate them, and add your personal notes
+          </p>
+        </div>
       </header>
 
       {!process.env.NEXT_PUBLIC_GEMINI_API_KEY && (
@@ -58,6 +69,8 @@ export default function Home() {
             </p>
             <div className="space-y-3 text-sm text-gray-500 dark:text-gray-400">
               <p>✨ Rate games you've played</p>
+              <p>🔍 Search and explore game details</p>
+              <p>📝 Add personal notes to games</p>
               <p>🎯 Get AI-powered game recommendations</p>
               <p>📱 Sync your preferences across devices</p>
               <p>🔒 Your data is secure and private</p>
@@ -66,11 +79,6 @@ export default function Home() {
         </div>
       ) : (
         <>
-          <section className="max-w-3xl mx-auto mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Add a Game</h2>
-            <AddGameForm />
-          </section>
-
           <section className="mb-12">
             <GameLists />
           </section>

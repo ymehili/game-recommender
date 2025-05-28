@@ -14,6 +14,15 @@ export interface GameRecommendation extends Game {
   matchScore?: number; // Optional score from 0-100 indicating how well it matches preferences
 }
 
+export interface GameNote {
+  id: string;
+  gameId: string;
+  userId: string;
+  note: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface UserPreferences {
   ratedGames: RatedGame[];
 }

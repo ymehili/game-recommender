@@ -5,6 +5,7 @@ import { FaTimes } from 'react-icons/fa';
 import { getGameCover } from '@/utils/igdbApi';
 import Image from 'next/image';
 import StarRating from './StarRating';
+import { useRouter } from 'next/navigation';
 
 interface GameCardProps {
   game: Game | GameRecommendation;
@@ -17,6 +18,7 @@ export default function GameCard({
   showActions = true,
   isRecommendation = false 
 }: GameCardProps) {
+  const router = useRouter();
   const { rateGame, removeGameFromLists, getGameRating } = usePreferences();
   const [isExpanded, setIsExpanded] = useState(false);
   const [coverImage, setCoverImage] = useState<string | null>(game.coverImage || null);
@@ -86,8 +88,25 @@ export default function GameCard({
     fetchCover();
   }, [game.title, game.coverImage]);
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't navigate if the user clicked on an interactive element
+    const target = e.target as HTMLElement;
+    const isInteractiveElement = target.closest('button') || 
+                                target.closest('[role="button"]') || 
+                                target.closest('input') ||
+                                target.closest('.star-rating') ||
+                                target.tagName === 'BUTTON';
+    
+    if (!isInteractiveElement) {
+      router.push(`/game/${game.id}`);
+    }
+  };
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all duration-200 hover:shadow-xl">
+    <div 
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all duration-200 hover:shadow-xl cursor-pointer"
+      onClick={handleCardClick}
+    >
       <div className="flex flex-row">
         {/* Game cover image */}
         <div className="relative w-24 h-32 flex-shrink-0">
@@ -133,7 +152,7 @@ export default function GameCard({
           
           {/* Star Rating */}
           {showActions && (
-            <div className="mt-2">
+            <div className="mt-2 star-rating">
               <StarRating 
                 rating={currentRating}
                 onRatingChange={handleRatingChange}
