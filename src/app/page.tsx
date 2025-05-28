@@ -1,14 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import RecentGames from '@/components/RecentGames';
+import PopularGames from '@/components/PopularGames';
 import GameSearchBar from '@/components/GameSearchBar';
 import { useAuth } from '@/contexts/AuthContext';
-import { FaGamepad, FaSignInAlt, FaFilm, FaSearch, FaList, FaUser, FaHome, FaBars, FaBell, FaEllipsisH, FaChartLine, FaFire } from 'react-icons/fa';
+import { FaGamepad, FaSignInAlt, FaUser } from 'react-icons/fa';
 import Link from 'next/link';
 
 export default function Home() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-letterboxd">
@@ -47,9 +46,9 @@ export default function Home() {
               </div>
             )}
 
-            {/* Recent Games Section */}
+            {/* Popular Games Section */}
             <section className="mb-12">
-              <RecentGames />
+              <PopularGames />
             </section>
 
             <div className="max-w-4xl mx-auto text-center py-12">
@@ -148,9 +147,9 @@ export default function Home() {
               </div>
             </section>
 
-            {/* Recent Games Section */}
+            {/* Popular Games Section */}
             <section className="mb-12">
-              <RecentGames />
+              <PopularGames />
             </section>
           </>
         )}

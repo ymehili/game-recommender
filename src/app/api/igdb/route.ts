@@ -1,6 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import igdb from 'igdb-api-node';
 
+// Type for popularity primitive data
+interface PopularityPrimitive {
+  id: number;
+  game_id: number;
+  value: number;
+  popularity_type: number;
+}
+
+// Type for game data
+interface GameData {
+  id: number;
+  name: string;
+  slug: string;
+  cover?: {
+    url: string;
+  };
+  first_release_date?: number;
+  summary?: string;
+  platforms?: Array<{ name: string }>;
+  genres?: Array<{ name: string }>;
+  rating?: number;
+  rating_count?: number;
+  total_rating?: number;
+}
+
 // Initialize IGDB client
 const getIGDBClient = () => {
   const clientId = process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID;
@@ -25,7 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { action, searchTerm, gameId, limit = 20 } = body;
+    const { action, searchTerm, gameId, limit = 20, offset = 0 } = body;
 
     switch (action) {
       case 'search':
@@ -42,15 +67,68 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ data: searchResponse.data || [] });
 
       case 'popular':
-        // Get popular games based on rating count and total rating
-        const popularResponse = await client
-          .fields(['name', 'slug', 'cover.url', 'first_release_date', 'summary', 'platforms.name', 'genres.name', 'rating', 'rating_count', 'total_rating'])
-          .where('rating_count > 100 & total_rating > 70 & category = 0')
-          .sort('total_rating desc')
-          .limit(limit)
-          .request('/games');
+        try {
+          // First, get popular game IDs from the popularity primitives
+          // Using popularity_type = 1 (IGDB Visits) as it's a good general indicator
+          const popularityResponse = await client
+            .fields(['game_id', 'value', 'popularity_type'])
+            .where('popularity_type = 1')
+            .sort('value desc')
+            .limit(limit)
+            .offset(offset)
+            .request('/popularity_primitives');
 
-        return NextResponse.json({ data: popularResponse.data || [] });
+          if (!popularityResponse.data || popularityResponse.data.length === 0) {
+            // Fallback to the old popular method if popularity data is unavailable
+            const fallbackResponse = await client
+              .fields(['name', 'slug', 'cover.url', 'first_release_date', 'summary', 'platforms.name', 'genres.name', 'rating', 'rating_count', 'total_rating'])
+              .where('rating_count > 100 & total_rating > 70 & category = 0')
+              .sort('total_rating desc')
+              .limit(limit)
+              .offset(offset)
+              .request('/games');
+
+            return NextResponse.json({ 
+              data: fallbackResponse.data || [], 
+              hasMore: fallbackResponse.data && fallbackResponse.data.length === limit 
+            });
+          }
+
+          // Extract game IDs from popularity data
+          const gameIds = popularityResponse.data.map((item: PopularityPrimitive) => item.game_id);
+          
+          // Fetch detailed game information for these popular games
+          const gamesResponse = await client
+            .fields(['name', 'slug', 'cover.url', 'first_release_date', 'summary', 'platforms.name', 'genres.name', 'rating', 'rating_count', 'total_rating'])
+            .where(`id = (${gameIds.join(',')}) & category = 0`)
+            .request('/games');
+
+          // Sort games based on the original popularity order
+          const sortedGames = gameIds.map((gameId: number) => 
+            gamesResponse.data?.find((game: GameData) => game.id === gameId)
+          ).filter(Boolean);
+
+          return NextResponse.json({ 
+            data: sortedGames || [], 
+            hasMore: popularityResponse.data.length === limit 
+          });
+        } catch (popularityError) {
+          console.warn('Popularity API failed, falling back to rating-based popular games:', popularityError);
+          
+          // Fallback to the old popular method
+          const fallbackResponse = await client
+            .fields(['name', 'slug', 'cover.url', 'first_release_date', 'summary', 'platforms.name', 'genres.name', 'rating', 'rating_count', 'total_rating'])
+            .where('rating_count > 100 & total_rating > 70 & category = 0')
+            .sort('total_rating desc')
+            .limit(limit)
+            .offset(offset)
+            .request('/games');
+
+          return NextResponse.json({ 
+            data: fallbackResponse.data || [], 
+            hasMore: fallbackResponse.data && fallbackResponse.data.length === limit 
+          });
+        }
 
       case 'recent':
         // Get recently released games
@@ -62,9 +140,13 @@ export async function POST(request: NextRequest) {
           .where(`first_release_date > ${oneYearAgo} & first_release_date < ${currentDate} & category = 0`)
           .sort('first_release_date desc')
           .limit(limit)
+          .offset(offset)
           .request('/games');
 
-        return NextResponse.json({ data: recentResponse.data || [] });
+        return NextResponse.json({ 
+          data: recentResponse.data || [], 
+          hasMore: recentResponse.data && recentResponse.data.length === limit 
+        });
 
       case 'getById':
         if (!gameId) {
