@@ -4,8 +4,6 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginForm from '@/components/LoginForm';
-import { FaArrowLeft, FaGamepad } from 'react-icons/fa';
-import Link from 'next/link';
 
 export default function LoginPage() {
   const { user, isLoading } = useAuth();
@@ -31,26 +29,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-letterboxd flex flex-col">
-      {/* Header */}
-      <div className="w-full px-4 py-6 border-b border-letterboxd">
-        <div className="container mx-auto flex items-center justify-between">
-          <Link
-            href="/"
-            className="flex items-center space-x-2 text-muted hover:letterboxd-green transition-colors duration-200"
-          >
-            <FaArrowLeft className="h-4 w-4" />
-            <span>Back to Home</span>
-          </Link>
-
-          <div className="flex items-center space-x-3">
-            <FaGamepad className="text-2xl letterboxd-green" />
-            <span className="text-xl font-bold text-white">
-              gamelogd
-            </span>
-          </div>
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">

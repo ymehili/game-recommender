@@ -3,10 +3,9 @@
 import { useState } from 'react';
 import GameLists from '@/components/GameLists';
 import GameRecommendations from '@/components/GameRecommendations';
-import GameSearchBar from '@/components/GameSearchBar';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePreferences } from '@/contexts/PreferencesContext';
-import { FaGamepad, FaSignInAlt, FaFilm, FaSearch, FaList, FaUser, FaHome, FaBars, FaBell, FaEllipsisH } from 'react-icons/fa';
+import { FaGamepad, FaSignInAlt } from 'react-icons/fa';
 import Link from 'next/link';
 
 export default function Profile() {
@@ -17,41 +16,6 @@ export default function Profile() {
   if (!user && !authLoading) {
     return (
       <div className="min-h-screen bg-letterboxd">
-        {/* Navigation Header */}
-        <header className="bg-letterboxd-secondary border-b border-letterboxd sticky top-0 z-50">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-16">
-              {/* Logo */}
-              <Link href="/" className="flex items-center space-x-3">
-                <FaGamepad className="text-2xl letterboxd-green" />
-                <h1 className="text-xl font-bold text-white">gamelogd</h1>
-              </Link>
-
-              {/* Navigation */}
-              <nav className="hidden md:flex items-center space-x-8">
-                <Link href="/" className="text-secondary hover:text-white transition-colors font-medium">
-                  HOME
-                </Link>
-                <Link href="/profile" className="text-white hover:letterboxd-green transition-colors font-medium border-b-2 border-letterboxd-green pb-1">
-                  PROFILE
-                </Link>
-              </nav>
-
-              {/* Right side */}
-              <div className="flex items-center space-x-4">
-                <GameSearchBar 
-                  placeholder="Search"
-                  className="w-64 hidden lg:block"
-                />
-                
-                <Link href="/login" className="bg-letterboxd-green text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-600 transition-colors">
-                  SIGN IN
-                </Link>
-              </div>
-            </div>
-          </div>
-        </header>
-
         <main className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto text-center py-20">
             <div className="bg-letterboxd-card border border-letterboxd rounded-lg p-8">
@@ -83,48 +47,6 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-letterboxd">
-      {/* Letterboxd-style Navigation Header */}
-      <header className="bg-letterboxd-secondary border-b border-letterboxd sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center space-x-3">
-              <FaGamepad className="text-2xl letterboxd-green" />
-              <h1 className="text-xl font-bold text-white">gamelogd</h1>
-            </Link>
-
-            {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <Link href="/" className="text-secondary hover:text-white transition-colors font-medium">
-                HOME
-              </Link>
-              <Link href="/profile" className="text-white hover:letterboxd-green transition-colors font-medium border-b-2 border-letterboxd-green pb-1">
-                PROFILE
-              </Link>
-            </nav>
-
-            {/* Right side */}
-            <div className="flex items-center space-x-4">
-              <GameSearchBar 
-                placeholder="Search"
-                className="w-64 hidden lg:block"
-              />
-              
-              {user && (
-                <div className="flex items-center space-x-3">
-                  <FaBell className="text-secondary hover:text-white cursor-pointer text-lg" />
-                  <Link href="/profile">
-                    <div className="w-8 h-8 rounded-full bg-letterboxd-green flex items-center justify-center text-white font-bold text-sm cursor-pointer">
-                      {user.username?.charAt(0).toUpperCase() || 'U'}
-                    </div>
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
-
       {user && (
         // User Profile Section (like Letterboxd's profile header)
         <div className="bg-letterboxd-secondary border-b border-letterboxd">
