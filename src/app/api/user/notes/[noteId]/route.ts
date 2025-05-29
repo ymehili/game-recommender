@@ -41,18 +41,17 @@ export async function PUT(
       );
     }
 
-    const body: { gameId: string; note: string } = await request.json();
+    const body: { note: string } = await request.json();
     
-    if (!body.gameId || typeof body.note !== 'string') {
+    if (typeof body.note !== 'string') {
       return NextResponse.json(
-        { success: false, message: 'Invalid gameId or note' },
+        { success: false, message: 'Invalid note' },
         { status: 400 }
       );
     }
 
-    // Get the existing note to check ownership
-    const noteKey = `${NOTES_PREFIX}${decoded.userId}:${body.gameId}`;
-    const existingNote = await kv.get<GameNote>(noteKey);
+    // Get the existing note to check ownership using the noteId from URL
+    const existingNote = await kv.get<GameNote>(noteId);
 
     if (!existingNote) {
       return NextResponse.json(
@@ -75,7 +74,7 @@ export async function PUT(
       updatedAt: new Date().toISOString(),
     };
 
-    await kv.set(noteKey, updatedNote);
+    await kv.set(noteId, updatedNote);
 
     return NextResponse.json({
       success: true,

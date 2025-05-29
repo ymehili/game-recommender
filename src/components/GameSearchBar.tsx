@@ -19,20 +19,7 @@ export default function GameSearchBar({
   const [isOpen, setIsOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  // Debounce function
-  const debounce = <F extends (...args: any[]) => any>(func: F, delay: number) => {
-    let timeoutId: ReturnType<typeof setTimeout>;
-    return (...args: Parameters<F>): Promise<ReturnType<F>> => {
-      return new Promise((resolve) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          resolve(func(...args));
-        }, delay);
-      });
-    };
-  };
-
-  const fetchGames = async (searchTerm: string) => {
+  const fetchGames = useCallback(async (searchTerm: string) => {
     if (!searchTerm.trim()) {
       setSearchResults([]);
       setIsOpen(false);
@@ -51,9 +38,18 @@ export default function GameSearchBar({
     } finally {
       setIsSearching(false);
     }
-  };
+  }, []);
 
-  const debouncedFetchGames = useCallback(debounce(fetchGames, 300), []);
+  const debouncedFetchGames = useCallback(
+    (() => {
+      let timeoutId: ReturnType<typeof setTimeout>;
+      return (searchTerm: string) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => fetchGames(searchTerm), 300);
+      };
+    })(),
+    [fetchGames]
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;

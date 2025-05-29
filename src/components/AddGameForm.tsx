@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Game } from '@/types';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { searchGames, IGDBGame } from '@/utils/igdbApi';
@@ -14,20 +14,7 @@ export default function AddGameForm() {
   const [selectedRating, setSelectedRating] = useState(0);
   const { rateGame } = usePreferences();
 
-  // Debounce function
-  const debounce = <F extends (...args: any[]) => any>(func: F, delay: number) => {
-    let timeoutId: ReturnType<typeof setTimeout>;
-    return (...args: Parameters<F>): Promise<ReturnType<F>> => {
-      return new Promise((resolve) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          resolve(func(...args));
-        }, delay);
-      });
-    };
-  };
-  
-  const fetchGames = async (searchTerm: string) => {
+  const fetchGames = useCallback(async (searchTerm: string) => {
     if (!searchTerm.trim()) {
       setSearchResults([]);
       return;
@@ -42,9 +29,18 @@ export default function AddGameForm() {
     } finally {
       setIsSearching(false);
     }
-  };
+  }, []);
 
-  const debouncedFetchGames = useCallback(debounce(fetchGames, 300), []);
+  const debouncedFetchGames = useCallback(
+    (() => {
+      let timeoutId: ReturnType<typeof setTimeout>;
+      return (searchTerm: string) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => fetchGames(searchTerm), 300);
+      };
+    })(),
+    [fetchGames]
+  );
 
   // Generate a unique ID for the game
   const generateGameId = () => {

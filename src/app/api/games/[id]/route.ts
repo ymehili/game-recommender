@@ -31,7 +31,38 @@ const getIGDBClient = () => {
 };
 
 interface CachedGameData {
-  gameData: any;
+  gameData: {
+    id: number;
+    name: string;
+    slug?: string;
+    cover?: {
+      url: string;
+    };
+    first_release_date?: number;
+    summary?: string;
+    platforms?: Array<{
+      name: string;
+    }>;
+    genres?: Array<{
+      name: string;
+    }>;
+    screenshots?: Array<{
+      url: string;
+    }>;
+    videos?: Array<{
+      video_id: string;
+    }>;
+    rating?: number;
+    rating_count?: number;
+    storyline?: string;
+    involved_companies?: Array<{
+      company: {
+        name: string;
+      };
+      developer: boolean;
+      publisher: boolean;
+    }>;
+  };
   cachedAt: string;
 }
 

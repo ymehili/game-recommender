@@ -10,24 +10,15 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { IGDBGame, getGameFromServer } from '@/utils/igdbApi';
-import { getAuthHeaders } from '@/utils/cookies';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePreferences } from '@/contexts/PreferencesContext';
+import { getGameFromServer, IGDBGame } from '@/utils/igdbApi';
+import { getAuthHeaders } from '@/utils/cookies';
 import StarRating from '@/components/StarRating';
 import Image from 'next/image';
 import { FaArrowLeft, FaCalendar, FaGamepad, FaTags, FaStickyNote, FaEye } from 'react-icons/fa';
-
-interface GameNote {
-  id: string;
-  gameId: string;
-  userId: string;
-  note: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export default function GamePage() {
   const params = useParams();
@@ -78,19 +69,7 @@ export default function GamePage() {
     loadGameData();
   }, [gameId]);
 
-  // Load user rating and note
-  useEffect(() => {
-    if (game && user) {
-      // Load rating
-      const rating = getGameRating(gameId);
-      setCurrentRating(rating);
-
-      // Load user note
-      loadUserNote();
-    }
-  }, [game, user, gameId, getGameRating]);
-
-  const loadUserNote = async () => {
+  const loadUserNote = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -108,7 +87,19 @@ export default function GamePage() {
     } catch (error) {
       console.error('Error loading user note:', error);
     }
-  };
+  }, [user, gameId]);
+
+  // Load user rating and note
+  useEffect(() => {
+    if (game && user) {
+      // Load rating
+      const rating = getGameRating(gameId);
+      setCurrentRating(rating);
+
+      // Load user note
+      loadUserNote();
+    }
+  }, [game, user, gameId, getGameRating, loadUserNote]);
 
   const handleRatingChange = async (rating: number) => {
     if (!game || !user) return;

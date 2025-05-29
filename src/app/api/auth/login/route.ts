@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     const token = generateToken(user.id);
 
     // Return user data without password
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _password, ...userWithoutPassword } = user;
     
     const response: AuthResponse = {
       success: true,
